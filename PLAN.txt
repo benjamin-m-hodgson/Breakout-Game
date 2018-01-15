@@ -1,0 +1,82 @@
+The following is a plan that contains elements to include in my Breakout game variation. 
+The dimensions for the blocks and the ball and the probabilities for power-up drops 
+are not listed here because they will most likely change as the game is developed. 
+
+Worms Breakout Variant:
+
+	I found the Worms Breakout variant interesting because the blocks occasionally dropped 
+	power-ups. Some of the power-ups, like the extra ball drop, I plan to utilize in my own 
+	variation; however, I didn't like how the power-ups fell down the screen. In my variation
+	I plan to leave the power-ups floating in the blocks place. I also liked how the 
+	power-ups in the Worms version appear to require the user to press a key to activate. This 
+	feature seems to give more control to the user and allows for them to plan when/how to use 
+	certain power-ups. 
+
+Game Levels:
+
+	The game will consist of 5 levels, each increasing in difficulty by
+		- Decreasing the paddle width 
+		- Increasing the ball speed 
+		- Changing the block configuration
+		
+	Each level will have the same block area partitioned into a grid for potential 
+	block positions. The possible positions will be read in from a file and then 
+	a block has a probability to be placed in a position depending on the level and the block 
+	type. This means the same level may not have the same configuration each time because
+	a block will not always be generated in the same position. The probability that a block
+	will be placed will increase with each level in order to increase the difficulty. In 
+	addition, the probability that a more difficult 'special' block is placed increases with 
+	each level.   
+	
+Block Types:
+
+	The game will have 4 block types
+		- Standard block: the default block that disappears after one hit.
+		- Two-hit block: a block that disappears after two hits.
+		- Three-hit block: a block that disappears after three hits.
+		- Speed-Boost block: a block that increases the speed of the ball for the duration 
+		of the level and disappears after one hit.
+							 
+	The Speed-Boost block has the smallest probability to be placed and this value remains the 
+	same in all levels. The Two-hit and Three-hit blocks are more likely to be placed with each
+	increasing level. 
+	
+	Each block will have the same probability of dropping an ability coin. These coins can 
+	be used to activate one paddle ability for a short time period. 
+	
+	Each block will have the probability of dropping a power-up. Not all power-ups have the same
+	probability of dropping.
+	
+Paddle Abilities:
+
+	The paddle will have 3 possible abilities. Each ability consumes 1 ability coin. 
+		- Catch and Throw: When a key is pressed the paddle turns red and the next time it hits the ball
+		the ball will stick to it. Pressing the same key again will throw the ball and return the paddle
+		to its normal color. Only one ball can be caught at a time.
+		- Longer Paddle: When a key is pressed the paddle turns purple and stretches to a longer width.
+		After a short time the paddle returns to its normal color and size.   
+		- Boost Paddle: When a key is pressed the paddle turns green and moves quicker. After a short 
+		time the paddle returns to its normal color and movement speed. 
+		
+Power-Ups:
+
+	Blocks have the probability of dropping the following power-ups, listed most common to least common
+	- Extra ball: Gives the player an extra ball that can be fired from the paddle by pressing a key
+	- Extra life: Gives the player an extra life
+	- Shadow ball: the ball breaks blocks but does not bounce off of them for a short period. 
+	
+	Once dropped the power-ups float in the blocks place until the ball hits it, then it is activated.
+	
+Cheat Keys:
+
+	The cheat keys will be used for game testing and debugging
+		- Extra balls: A key to give the player an extra ball
+		- Extra life: A key to give the player an extra life
+		- Reset key: A key to reset the paddle and balls
+		- Round jump: Keys to jump between rounds
+		
+Extra Addition - Triple Threat:
+
+	If there are more than 3 balls in play at a time, every ball gets a small speed boost 
+	and the balls all begin to change colors as they move.  
+		 
