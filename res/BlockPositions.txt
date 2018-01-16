@@ -1,0 +1,3 @@
+This file contains the x and y coordinate for possible block positions.
+	x		y
+	

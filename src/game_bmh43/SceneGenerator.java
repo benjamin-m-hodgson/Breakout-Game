@@ -13,13 +13,19 @@ import javafx.scene.paint.Paint;
  */
 public class SceneGenerator {
 
+	private final int WIDTH = 700;
+	private final int HEIGHT = 500;
+	
 	private Scene LEVEL_SCENE;
+	private int LEVEL_NUM;
 		
-	public SceneGenerator(int width, int height, Paint background) {
+	public SceneGenerator(int levelNum) {
+		LEVEL_NUM = levelNum;
+		
 		// create one top level collection to organize the things in the scene
-        Group root = new Group();
+        //Group root = new Group();
         // create the scene to display objects
-		LEVEL_SCENE = new Scene(root, width, height, background);
+		//LEVEL_SCENE = new Scene(root, WIDTH, HEIGHT);
 	}
 	
 	/**

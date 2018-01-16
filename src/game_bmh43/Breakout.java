@@ -26,6 +26,8 @@ public class Breakout extends Application {
 	public void start(Stage primaryStage) throws Exception {
 		// display the menu screen
 		gameDriver.startGame(primaryStage);
+		// begin the game
+		gameDriver.playGame(primaryStage);
 		
 		primaryStage.show();
 	}
