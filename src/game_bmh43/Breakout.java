@@ -28,7 +28,6 @@ public class Breakout extends Application {
 		gameDriver.startGame(primaryStage);
 		// begin the game
 		gameDriver.playGame(primaryStage);
-		
 		primaryStage.show();
 	}
 	

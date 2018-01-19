@@ -5,16 +5,21 @@ import javafx.animation.Timeline;
 import javafx.event.EventHandler;
 import javafx.geometry.Pos;
 import javafx.scene.Group;
+import javafx.scene.Node;
+import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextArea;
 import javafx.scene.effect.DropShadow;
 import javafx.scene.effect.Glow;
+import javafx.scene.input.KeyCode;
 import javafx.scene.input.MouseEvent;
+import javafx.scene.layout.Pane;
 import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
 import javafx.scene.paint.Paint;
+import javafx.scene.shape.Rectangle;
 import javafx.scene.text.Font;
 import javafx.stage.Stage;
 import javafx.util.Duration;
@@ -24,7 +29,7 @@ import javafx.util.Duration;
  * @author Benjamin Hodgson
  * @date 1/15/2018
  * 
- * This class contains the game mechanics and creates 
+ * This class contains the game mechanics
  *
  */
 public class GameEngine {
@@ -37,6 +42,8 @@ public class GameEngine {
 	
 	private final int MILLISECOND_DELAY = 1000 / FRAMES_PER_SECOND;
     private final double SECOND_DELAY = 1.0 / FRAMES_PER_SECOND;
+    
+    private ObjectManager SPRITES = new ObjectManager();
 	
 	/**
 	 * 
@@ -48,7 +55,7 @@ public class GameEngine {
 	}
 	
 	/**
-	 * Creates the initial start up menu
+	 * Begin the game loop
 	 * 
 	 * @param primaryStage: the primary game window
 	 */
@@ -65,6 +72,7 @@ public class GameEngine {
 	}
 	
 	/**
+	 * Create the initial start up menu and handle playButton click
 	 * 
 	 * @param primaryStage: the primary game window
 	 */
@@ -110,7 +118,11 @@ public class GameEngine {
 		System.out.printf("Game over!");
 	}
 	
-	// Change properties of shapes to animate them 
+	/**
+	 * Change properties of shapes to animate them 
+	 * 
+	 * @param elapsedTime: time since last animation update
+	 */
     private void step (double elapsedTime) {
     	// update objects
     }
@@ -152,14 +164,34 @@ public class GameEngine {
     
     /**
      * Method generates the scene for the level to be played
+     * levelScene represents the Scene populated with blocks
      * 
      * @param primaryStage: the primary game window
      * @param levelNum: the number of the level to be generated
      */
     private void generateLevel(Stage primaryStage, int levelNum) {
     	Scene levelScene = new SceneGenerator(levelNum).getScene();
+    	Pane levelPane = (Pane) levelScene.getRoot();
+    	// clear the ObjectManager
+    	SPRITES.resetBalls();
+    	SPRITES.resetBlocks();
+    	// add the new blocks into the ObjectManager
+    	for (Node nodeBlock : levelPane.getChildren()) {
+    		SPRITES.addBlock(nodeBlock);
+    	}
+    	System.out.print(SPRITES.numBlocks());
+    	// add the paddle
+    	Paddle gamePaddle = new Paddle(levelScene);
+    	levelPane.getChildren().add(gamePaddle.getNode());
+        levelScene.setOnMouseClicked(e -> handleMouseInput(e.getX(), e.getY()));
+    	primaryStage.setScene(levelScene);
     	// generate the statistics bar at the top
     	// generate the round text label in the center of the screen
     	// generate the ball and paddle
+    }
+    
+    // What to do each time a key is pressed
+    private void handleMouseInput (double x, double y) {
+        
     }
 }
