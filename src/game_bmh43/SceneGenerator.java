@@ -1,5 +1,6 @@
 package game_bmh43;
 
+import java.util.ArrayList;
 import java.util.Random;
 import java.util.Scanner;
 
@@ -24,7 +25,8 @@ public class SceneGenerator {
 	private Scene LEVEL_SCENE;
 	private int LEVEL_NUM;
 	private Pane LEVEL_PANE;
-		
+	private ArrayList<Block> GENERATED_BLOCKS;
+	
 	public SceneGenerator(int levelNum) {
 		LEVEL_NUM = levelNum;
 		buildScene();
@@ -44,6 +46,14 @@ public class SceneGenerator {
 	 */
 	public Pane getPane() {
 		return LEVEL_PANE;
+	}
+	
+	/**
+	 * 
+	 * @return GENERATED_BLOCKS: a list of blocks added
+	 */
+	public ArrayList<Block> getBlockList() {
+		return GENERATED_BLOCKS;
 	}
 	
 	/**
@@ -68,6 +78,7 @@ public class SceneGenerator {
 		// read the rest of the positions in the file
 		Pane blockPos = new Pane();
 		blockPos.setStyle("-fx-background-color: #696969");
+		GENERATED_BLOCKS = new ArrayList<Block>();
 		while (in.hasNextInt()) {
 			int xPos = in.nextInt();
 			int yPos = in.nextInt();
@@ -76,6 +87,8 @@ public class SceneGenerator {
 			if (blockSpawn <= 40 + (LEVEL_NUM * 10)) {
 				// generate block
 				Block addBlock = new Block(xPos, yPos);
+				GENERATED_BLOCKS.add(addBlock);
+				// add block to the scene as a scene node
 				blockPos.getChildren().add(addBlock.getNode());
 			}
 		}

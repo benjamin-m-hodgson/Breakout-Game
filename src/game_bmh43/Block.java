@@ -11,6 +11,10 @@ public class Block {
     private final double BLOCK_WIDTH = 20;
     private final double BLOCK_HEIGHT = 20;
     private final Color BLOCK_COLOR = Color.ORANGE;
+    private final String BLOCK_STANDARD = "Standard block";
+    private final String BLOCK_TWO = "Two-Hit block";
+    private final String BLOCK_THREE = "Three-hit block";
+    private final String BLOCK_SPEED = "Speed block";
 	
 	public Block(int x, int y) {
 		BLOCK = new Rectangle(x, y,

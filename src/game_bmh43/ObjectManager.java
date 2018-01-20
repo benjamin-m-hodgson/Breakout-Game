@@ -3,22 +3,34 @@ package game_bmh43;
 import java.util.ArrayList;
 
 import javafx.scene.Node;
+import javafx.scene.shape.Shape;
 
 public class ObjectManager {
 	
-	ArrayList<Node> BLOCK_LIST;
+	ArrayList<Block> BLOCK_LIST;
 	ArrayList<Ball> BALL_LIST;
+	ArrayList<Object> SPRITE_LIST;
 	
 	public ObjectManager() {
-		BLOCK_LIST = new ArrayList<Node>();
+		BLOCK_LIST = new ArrayList<Block>();
 		BALL_LIST = new ArrayList<Ball>();
+		SPRITE_LIST = new ArrayList<Object>();
 	}
 	
 	/**
-	 * Adds a ball to the ball list
+	 * 
+	 * @return SPRITE_LIST: a list of the balls and blocks in the scene
 	 */
-	public void addBlock(Node newBlock) {
+	public ArrayList<Object> getObjects() {
+		return SPRITE_LIST;
+	}
+	
+	/**
+	 * Adds a block to the block list
+	 */
+	public void addBlock(Block newBlock) {
 		BLOCK_LIST.add(newBlock);
+		SPRITE_LIST.add(newBlock);
 	}
 	
 	/**
@@ -26,6 +38,7 @@ public class ObjectManager {
 	 */
 	public void addBall(Ball newBall) {
 		BALL_LIST.add(newBall);
+		SPRITE_LIST.add(newBall);
 	}
 	
 	/**

@@ -15,10 +15,11 @@ public class Ball {
     
     private double XVELOCITY;
     private double YVELOCITY;
+    private double MULTIPLIER;
     
     private boolean FRENZY = false;
     
-    public Ball(int x, int y) {
+    public Ball(double x, double y) {
     	this(x, y, 0, 0);
     }
     
@@ -28,6 +29,7 @@ public class Ball {
     	BALL.relocate(xPos, yPos);
     	XVELOCITY = xV;
     	YVELOCITY = yV;
+    	MULTIPLIER = 1;
     }
     
     /**
@@ -43,8 +45,8 @@ public class Ball {
      */
     public void update() {
     	// check for collisions to update velocity appropriately
-    	double newX = BALL.getTranslateX() + XVELOCITY;
-    	double newY = BALL.getTranslateY() + YVELOCITY;
+    	double newX = BALL.getTranslateX() + (XVELOCITY * MULTIPLIER);
+    	double newY = BALL.getTranslateY() + (YVELOCITY * MULTIPLIER);
     	if (FRENZY) {
     		newX = newX + 2;
     		newY = newY + 2;
@@ -67,6 +69,13 @@ public class Ball {
     public void stopFrenzy() {
     	FRENZY = false;
     	BALL.setFill(BALL_COLOR);
+    }
+    
+    /**
+     * Applies a boost to the ball's speed
+     */
+    public void applyBoost() {
+    	MULTIPLIER = 1.3;
     }
     
     /**

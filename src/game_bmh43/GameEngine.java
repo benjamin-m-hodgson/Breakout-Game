@@ -1,25 +1,20 @@
 package game_bmh43;
 
+import java.util.ArrayList;
+
+import game_bmh43.Ball;
+import game_bmh43.Block;
 import javafx.animation.KeyFrame;
 import javafx.animation.Timeline;
 import javafx.event.EventHandler;
 import javafx.geometry.Pos;
-import javafx.scene.Group;
-import javafx.scene.Node;
-import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
-import javafx.scene.control.TextArea;
-import javafx.scene.effect.DropShadow;
 import javafx.scene.effect.Glow;
-import javafx.scene.input.KeyCode;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.VBox;
-import javafx.scene.paint.Color;
-import javafx.scene.paint.Paint;
-import javafx.scene.shape.Rectangle;
 import javafx.scene.text.Font;
 import javafx.stage.Stage;
 import javafx.util.Duration;
@@ -44,6 +39,7 @@ public class GameEngine {
     private final double SECOND_DELAY = 1.0 / FRAMES_PER_SECOND;
     
     private ObjectManager SPRITES = new ObjectManager();
+    private Player PLAYER = new Player();
 	
 	/**
 	 * 
@@ -124,7 +120,19 @@ public class GameEngine {
 	 * @param elapsedTime: time since last animation update
 	 */
     private void step (double elapsedTime) {
+    	if (SPRITES.numBlocks() == 0 ||
+    			PLAYER.isDead()) {
+    		endLevel();
+    	}
     	// update objects
+    	for (Object gameObject : SPRITES.getObjects()) {
+    		if (gameObject instanceof Block) {
+    			
+    		}
+    		else if (gameObject instanceof Ball) {
+    			
+    		}
+    	}
     }
     
     /**
@@ -170,16 +178,19 @@ public class GameEngine {
      * @param levelNum: the number of the level to be generated
      */
     private void generateLevel(Stage primaryStage, int levelNum) {
-    	Scene levelScene = new SceneGenerator(levelNum).getScene();
-    	Pane levelPane = (Pane) levelScene.getRoot();
+    	SceneGenerator level = new SceneGenerator(levelNum);
+    	Scene levelScene = level.getScene();
+    	Pane levelPane = level.getPane();
+    	ArrayList<Block> blockList = level.getBlockList();
     	// clear the ObjectManager
     	SPRITES.resetBalls();
     	SPRITES.resetBlocks();
     	// add the new blocks into the ObjectManager
-    	for (Node nodeBlock : levelPane.getChildren()) {
+    	for (Block nodeBlock : blockList) {
     		SPRITES.addBlock(nodeBlock);
     	}
     	System.out.print(SPRITES.numBlocks());
+    	SPRITES.addBall(new Ball(20, 20));
     	// add the paddle
     	Paddle gamePaddle = new Paddle(levelScene);
     	levelPane.getChildren().add(gamePaddle.getNode());
@@ -188,6 +199,13 @@ public class GameEngine {
     	// generate the statistics bar at the top
     	// generate the round text label in the center of the screen
     	// generate the ball and paddle
+    }
+    
+    /**
+     * Generates the end of the level screen
+     */
+    public void endLevel() {
+    	
     }
     
     // What to do each time a key is pressed
