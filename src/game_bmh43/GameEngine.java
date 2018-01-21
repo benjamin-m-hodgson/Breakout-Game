@@ -15,6 +15,7 @@ import javafx.scene.effect.Glow;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.VBox;
+import javafx.scene.shape.Shape;
 import javafx.scene.text.Font;
 import javafx.stage.Stage;
 import javafx.util.Duration;
@@ -113,27 +114,6 @@ public class GameEngine {
 	public void endGame(Stage primaryStage) {
 		System.out.printf("Game over!");
 	}
-	
-	/**
-	 * Change properties of shapes to animate them 
-	 * 
-	 * @param elapsedTime: time since last animation update
-	 */
-    private void step (double elapsedTime) {
-    	if (SPRITES.numBlocks() == 0 ||
-    			PLAYER.isDead()) {
-    		endLevel();
-    	}
-    	// update objects
-    	for (Object gameObject : SPRITES.getObjects()) {
-    		if (gameObject instanceof Block) {
-    			
-    		}
-    		else if (gameObject instanceof Ball) {
-    			
-    		}
-    	}
-    }
     
     /**
      * A method to take a play button and generate the surrounding menu screen 
@@ -189,8 +169,7 @@ public class GameEngine {
     	for (Block nodeBlock : blockList) {
     		SPRITES.addBlock(nodeBlock);
     	}
-    	System.out.print(SPRITES.numBlocks());
-    	SPRITES.addBall(new Ball(20, 20));
+    	//System.out.print(SPRITES.numBlocks());
     	// add the paddle
     	Paddle gamePaddle = new Paddle(levelScene);
     	levelPane.getChildren().add(gamePaddle.getNode());
@@ -204,8 +183,61 @@ public class GameEngine {
     /**
      * Generates the end of the level screen
      */
-    public void endLevel() {
+    private void endLevel() {
     	
+    }
+    
+    /**
+	 * Change properties of shapes to animate them 
+	 * 
+	 * @param elapsedTime: time since last animation update
+	 */
+    private void step (double elapsedTime) {
+    	if (SPRITES.numBlocks() == 0 ||
+    			PLAYER.isDead()) {
+    		endLevel();
+    	}
+    	// update objects
+    	for (Ball gameBall : SPRITES.getBalls()) {
+    		checkCollisions(gameBall);
+    		gameBall.update();
+    	}
+    }
+    
+    /**
+     * Checks if the given argument collides with another Ball or Block
+     * NOTE: code seems repetitive. May consider revising. 
+     * @param gameBall: Ball object to check for collisions
+     */
+    private void checkCollisions(Ball gameBall) {
+    	Shape paddleHit = Shape.intersect(gameBall.getBall(), SPRITES.getPaddle().getShape());
+    	if (paddleHit.getBoundsInLocal().getWidth() != -1) {
+            gameBall.handleCollision(SPRITES.getPaddle());
+        }
+    	for (Object otherObject : SPRITES.getObjects()) {
+    		// can't collide with itself
+    		if (!otherObject.equals(gameBall) &&
+    				otherObject instanceof Ball) {
+    			// check for collisions
+    			// with shapes, can check precisely
+    			Ball otherBall = (Ball) otherObject;
+    			Shape intersect = Shape.intersect(gameBall.getBall(), otherBall.getBall());
+    			if (intersect.getBoundsInLocal().getWidth() != -1) {
+    	            gameBall.handleCollision(otherBall);
+    	        }
+    		}
+    		else if (otherObject instanceof Block) {
+    			// check for collisions
+    			// with shapes, can check precisely
+    			Block otherBlock = (Block) otherObject;
+    			Shape intersect = Shape.intersect(gameBall.getBall(), otherBlock.getBlock());
+    			if (intersect.getBoundsInLocal().getWidth() != -1) {
+    	            gameBall.handleCollision(otherBlock);
+    	            otherBlock.handleImplode();
+    	            SPRITES.removeBlock(otherBlock);
+    	        }
+    		}
+    	}
     }
     
     // What to do each time a key is pressed

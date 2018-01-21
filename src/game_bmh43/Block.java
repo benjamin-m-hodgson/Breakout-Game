@@ -5,6 +5,7 @@ import javafx.scene.Scene;
 import javafx.scene.input.KeyCode;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Rectangle;
+import javafx.scene.shape.Shape;
 
 public class Block {
 	private Rectangle BLOCK;
@@ -15,6 +16,9 @@ public class Block {
     private final String BLOCK_TWO = "Two-Hit block";
     private final String BLOCK_THREE = "Three-hit block";
     private final String BLOCK_SPEED = "Speed block";
+    
+    private String TYPE;
+    private int HITS;
 	
 	public Block(int x, int y) {
 		BLOCK = new Rectangle(x, y,
@@ -28,5 +32,20 @@ public class Block {
 	 */
 	public Node getNode() {
 		return (Node) BLOCK;
+	}
+	
+	/**
+	 * 
+	 * @return Block as it's Shape object
+	 */
+	public Shape getBlock() {
+		return BLOCK;
+	}
+	
+	/**
+	 * Handle the destruction of the block
+	 */
+	public void handleImplode() {
+		
 	}
 }

@@ -6,6 +6,7 @@ import java.util.Random;
 import javafx.scene.Node;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Circle;
+import javafx.scene.shape.Shape;
 
 public class Ball {
 
@@ -41,6 +42,14 @@ public class Ball {
     }
     
     /**
+     * 
+     * @return Ball as it's Shape object
+     */
+    public Shape getBall() {
+    	return BALL;
+    }
+    
+    /**
      * Update the ball's position
      */
     public void update() {
@@ -52,7 +61,33 @@ public class Ball {
     		newY = newY + 2;
     		BALL.setFill(randomColor());
     	}
-    	BALL.relocate(newX, newY);
+    	BALL.relocate(newX, newY);	
+    }
+    
+    /**
+     * Updates the velocity components of the Ball after a collision
+     * 
+     * @param otherBall: the other Ball this Ball is colliding with
+     */
+    public void handleCollision(Ball otherBall) {
+    	
+    }
+    
+    /**
+     * Updates the velocity components of the Ball after a collision
+     * 
+     * @param otherBlock: the block this Ball is colliding with
+     */
+    public void handleCollision(Block otherBlock) {
+    	
+    }
+    
+    /**
+     * Updates the velocity components of the Ball after a collision
+     * 
+     * @param gamePaddle: the paddle this Ball is colliding with
+     */
+    public void handleCollision(Paddle gamePaddle) {
     	
     }
     

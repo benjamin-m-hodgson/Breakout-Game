@@ -33,7 +33,22 @@ public class Paddle {
         levelScene.setOnKeyPressed(e -> handleKeyInput(e.getCode()));
 	}
 	
-    
+	/**
+	 * 
+	 * @return Paddle cast to a Node object
+	 */
+	public Node getNode() {
+		return (Node) PADDLE;
+	}
+	
+	/**
+	 * 
+	 * @return Paddle as it's Shape object
+	 */
+	public Rectangle getShape() {
+		return PADDLE;
+	}
+	
     // What to do each time a key is pressed
     private void handleKeyInput (KeyCode code) {
         if (code == KeyCode.RIGHT && 
@@ -45,12 +60,4 @@ public class Paddle {
             PADDLE.setX(PADDLE.getX() - PADDLE_SPEED);
         }
     }
-	
-	/**
-	 * 
-	 * @return Paddle cast to a Node object
-	 */
-	public Node getNode() {
-		return (Node) PADDLE;
-	}
 }

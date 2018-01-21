@@ -7,9 +7,10 @@ import javafx.scene.shape.Shape;
 
 public class ObjectManager {
 	
-	ArrayList<Block> BLOCK_LIST;
-	ArrayList<Ball> BALL_LIST;
-	ArrayList<Object> SPRITE_LIST;
+	private ArrayList<Block> BLOCK_LIST;
+	private ArrayList<Ball> BALL_LIST;
+	private ArrayList<Object> SPRITE_LIST;
+	private Paddle GAME_PADDLE;	
 	
 	public ObjectManager() {
 		BLOCK_LIST = new ArrayList<Block>();
@@ -26,6 +27,22 @@ public class ObjectManager {
 	}
 	
 	/**
+	 * 
+	 * @return BALL_LIST: a list of the balls in the scene
+	 */
+	public ArrayList<Ball> getBalls() {
+		return BALL_LIST;
+	}
+	
+	/**
+	 * 
+	 * @return GAME_PADDLE: the Paddle object in the scene
+	 */
+	public Paddle getPaddle() {
+		return GAME_PADDLE;
+	}
+	
+	/**
 	 * Adds a block to the block list
 	 */
 	public void addBlock(Block newBlock) {
@@ -39,6 +56,15 @@ public class ObjectManager {
 	public void addBall(Ball newBall) {
 		BALL_LIST.add(newBall);
 		SPRITE_LIST.add(newBall);
+	}
+	
+	/**
+	 * Assigns the game paddle
+	 * 
+	 * @param newPaddle: paddle to be added
+	 */
+	public void addPaddle(Paddle newPaddle) {
+		GAME_PADDLE = newPaddle;
 	}
 	
 	/**
@@ -62,6 +88,20 @@ public class ObjectManager {
 	 */
 	public void resetBlocks() {
 		BLOCK_LIST.clear();
+	}
+	
+	/**
+	 * Removes a Block from the ObjectManager
+	 */
+	public void removeBlock(Block otherBlock) {
+		int pos = BLOCK_LIST.indexOf(otherBlock);
+		BLOCK_LIST.remove(pos);
+		for (Object gameObject : SPRITE_LIST) {
+			if (gameObject instanceof Block &&
+					gameObject.equals(otherBlock)) {
+				SPRITE_LIST.remove(gameObject);
+			}
+		}
 	}
 	
 	/**
