@@ -27,7 +27,8 @@ public class Ball {
     public Ball(double xPos, double yPos,
     		double xV, double yV, int levelNum) {
     	BALL = new Circle(BALL_RADIUS, BALL_COLOR);
-    	BALL.relocate(xPos, yPos);
+    	BALL.setCenterX(xPos);
+    	BALL.setCenterY(yPos);
     	XVELOCITY = xV;
     	YVELOCITY = yV;
     	MULTIPLIER = 0.9 + (levelNum * 0.1);
@@ -62,11 +63,11 @@ public class Ball {
      */
     public void update(double elapsedTime) {
     	// check for collisions to update velocity appropriately
-    	double newX = BALL.getTranslateX() + (XVELOCITY * MULTIPLIER * elapsedTime);
-    	double newY = BALL.getTranslateY() + (YVELOCITY * MULTIPLIER * elapsedTime);
+    	double newX = BALL.getCenterX() - (XVELOCITY * MULTIPLIER * elapsedTime);
+    	double newY = BALL.getCenterY() - (YVELOCITY * MULTIPLIER * elapsedTime);
     	if (FRENZY) {
-    		newX = newX + 2;
-    		newY = newY + 2;
+    		newX = newX - 2;
+    		newY = newY - 2;
     		BALL.setFill(randomColor());
     	}
     	BALL.setCenterX(newX);

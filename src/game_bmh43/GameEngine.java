@@ -55,8 +55,9 @@ public class GameEngine {
     private Label LIVES_LABEL;
     private Label BALLS_LABEL;
     private Label ABILITY_LABEL;
+    private Label INTRO_LABEL;
     
-    private int BALL_SPEED = 10;
+    private int BALL_SPEED = 75;
     private int LEVEL = 1;
 	
 	/**
@@ -246,13 +247,13 @@ public class GameEngine {
      */
     private HBox generateStats() {
     	// display levels
-    	LEVEL_LABEL = generateLabel("Level: ");
+    	LEVEL_LABEL = generateStatsLabel("Level: ");
     	// display lives
-    	LIVES_LABEL = generateLabel("Lives remaining: ");
+    	LIVES_LABEL = generateStatsLabel("Lives remaining: ");
      	// display balls
-    	BALLS_LABEL = generateLabel("Balls available: ");
+    	BALLS_LABEL = generateStatsLabel("Balls available: ");
      	// display ability coins
-     	ABILITY_LABEL = generateLabel("Ability points: ");
+     	ABILITY_LABEL = generateStatsLabel("Ability points: ");
      	// combine the labels
      	HBox statsBar = new HBox(WIDTH/6, LEVEL_LABEL, LIVES_LABEL, BALLS_LABEL, ABILITY_LABEL);
     	statsBar.setMaxSize(WIDTH, 20);
@@ -270,7 +271,7 @@ public class GameEngine {
      * @param text: The text to be put on the label
      * @return a Label containing the text
      */
-    private Label generateLabel(String text) {
+    private Label generateStatsLabel(String text) {
     	Label someLabel = new Label(text);
     	someLabel.setFont(new Font("Futura", 14));
      	someLabel.setStyle("-fx-text-fill: #FFFFFF");
@@ -286,11 +287,12 @@ public class GameEngine {
     	Random numGenerator = new Random();
     	int xRand = numGenerator.nextInt(21) - 10;
     	Rectangle Paddle = SPRITES.getPaddle().getShape();
-    	Ball newBall = new Ball(Paddle.getX(), Paddle.getHeight(),
+    	Pane levelPane = (Pane) GAME_STAGE.getScene().getRoot();
+    	Ball newBall = new Ball(Paddle.getX() + Paddle.getWidth() / 2, 
+    			levelPane.getHeight() - Paddle.getHeight() * 2,
     			xRand, BALL_SPEED, LEVEL);
     	SPRITES.addBall(newBall);
-    	PLAYER.loseBall();
-    	Pane levelPane = (Pane) GAME_STAGE.getScene().getRoot(); 
+    	PLAYER.loseBall(); 
     	levelPane.getChildren().add(newBall.getNode());
     }
     
