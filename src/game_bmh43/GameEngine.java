@@ -1,6 +1,7 @@
 package game_bmh43;
 
 import java.util.ArrayList;
+import java.util.Random;
 
 import game_bmh43.Ball;
 import game_bmh43.Block;
@@ -50,10 +51,12 @@ public class GameEngine {
     private ObjectManager SPRITES = new ObjectManager();
     private Player PLAYER = new Player();
     
-    private String LIVES_STR = "Lives remaining: ";
-    private String ABILITY_STR = "Ability coins: ";
-    private String LEVEL_STR;
+    private Label LEVEL_LABEL;
+    private Label LIVES_LABEL;
+    private Label BALLS_LABEL;
+    private Label ABILITY_LABEL;
     
+    private int BALL_SPEED = 10;
     private int LEVEL = 1;
 	
 	/**
@@ -186,7 +189,7 @@ public class GameEngine {
     	// add the paddle
     	Paddle gamePaddle = new Paddle(levelScene, LEVEL);
     	SPRITES.addPaddle(gamePaddle);
-    	levelPane.getChildren().add(gamePaddle.getNode());
+    	levelPane.getChildren().add(gamePaddle.getShape());
     	// add the level heading
     	VBox levelHeader = generateLevelHeader();
     	levelHeader.relocate(levelScene.getWidth()/2 - levelHeader.getMinWidth()/2, 
@@ -242,20 +245,16 @@ public class GameEngine {
      * @return statsBar: the statistics bar at the top of the scene
      */
     private HBox generateStats() {
+    	// display levels
+    	LEVEL_LABEL = generateLabel("Level: ");
     	// display lives
-    	Label livesLabel = new Label(LIVES_STR);
-     	livesLabel.setFont(new Font("Futura", 14));
-     	livesLabel.setStyle("-fx-text-fill: #FFFFFF");
-     	// display levels
-    	Label levelsLabel = new Label(LEVEL_STR);
-     	levelsLabel.setFont(new Font("Futura", 14));
-     	levelsLabel.setStyle("-fx-text-fill: #FFFFFF");
+    	LIVES_LABEL = generateLabel("Lives remaining: ");
+     	// display balls
+    	BALLS_LABEL = generateLabel("Balls available: ");
      	// display ability coins
-     	Label abilityLabel = new Label(ABILITY_STR);
-     	abilityLabel.setFont(new Font("Futura", 14));
-     	abilityLabel.setStyle("-fx-text-fill: #FFFFFF");
+     	ABILITY_LABEL = generateLabel("Ability points: ");
      	// combine the labels
-     	HBox statsBar = new HBox(WIDTH/3, livesLabel, levelsLabel, abilityLabel);
+     	HBox statsBar = new HBox(WIDTH/6, LEVEL_LABEL, LIVES_LABEL, BALLS_LABEL, ABILITY_LABEL);
     	statsBar.setMaxSize(WIDTH, 20);
     	statsBar.setMinSize(WIDTH, 20);
     	statsBar.setStyle("-fx-text-fill: #FFFFFF; "
@@ -267,15 +266,32 @@ public class GameEngine {
     }
     
     /**
-     * Updates the values of the display strings in the statistics bar.
-     * Waits until a ball is in play before displaying statistics bar.
+     * 
+     * @param text: The text to be put on the label
+     * @return a Label containing the text
      */
-    private void updateStats() {
-    	if (SPRITES.numBalls() > 0) {
-    		LIVES_STR = "Lives remaining: " + String.valueOf(PLAYER.getLives());
-    		LEVEL_STR = "Level: " + String.valueOf(LEVEL);
-    		ABILITY_STR = "Ability coins: " + String.valueOf(PLAYER.getAbilityCoins());
-    	}
+    private Label generateLabel(String text) {
+    	Label someLabel = new Label(text);
+    	someLabel.setFont(new Font("Futura", 14));
+     	someLabel.setStyle("-fx-text-fill: #FFFFFF");
+     	return someLabel; 
+    }
+    
+    /**
+     * Generates a Ball from the paddle with random x-velocity between the bounds
+     * -10 <= x <= 10
+     * 
+     */
+    private void generateBall() {
+    	Random numGenerator = new Random();
+    	int xRand = numGenerator.nextInt(21) - 10;
+    	Rectangle Paddle = SPRITES.getPaddle().getShape();
+    	Ball newBall = new Ball(Paddle.getX(), Paddle.getHeight(),
+    			xRand, BALL_SPEED, LEVEL);
+    	SPRITES.addBall(newBall);
+    	PLAYER.loseBall();
+    	Pane levelPane = (Pane) GAME_STAGE.getScene().getRoot(); 
+    	levelPane.getChildren().add(newBall.getNode());
     }
     
     /**
@@ -311,10 +327,25 @@ public class GameEngine {
     			gameBall.stopFrenzy();
     		}
     		checkCollisions(gameBall);
-    		gameBall.update();
+    		gameBall.update(elapsedTime);
+    		//System.out.println("Handled Ball update");
     	}
     	// update statistics
     	updateStats();
+    }
+    
+    /**
+     * Updates the values of the display strings in the statistics bar.
+     * Waits until a ball is in play before displaying statistics bar.
+     */
+    private void updateStats() {
+    	if (SPRITES.numBalls() > 0) {
+    		LEVEL_LABEL.setText("Level: " + String.valueOf(LEVEL));
+    		LIVES_LABEL.setText("Lives remaining: " + String.valueOf(PLAYER.getLives()));
+    		BALLS_LABEL.setText("Balls availible: " + String.valueOf(PLAYER.getBalls()));
+    		ABILITY_LABEL.setText("Ability coins: " + String.valueOf(PLAYER.getAbilityCoins()));
+    		System.out.println("Handled stats update");
+    	}
     }
     
     // Update each time a key is pressed
@@ -357,6 +388,7 @@ public class GameEngine {
     		else {
     			// generate ball
         		PLAYING = true;
+        		generateBall();
     		}
     	}
     }

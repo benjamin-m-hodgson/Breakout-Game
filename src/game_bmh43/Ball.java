@@ -11,7 +11,7 @@ import javafx.scene.shape.Shape;
 public class Ball {
 
 	private Circle BALL;
-    private final int BALL_RADIUS = 12;
+    private final int BALL_RADIUS = 6;
     private final Color BALL_COLOR = Color.WHITESMOKE;
     
     private double XVELOCITY;
@@ -50,18 +50,27 @@ public class Ball {
     }
     
     /**
+     * 
+     * @return The radius of the Ball
+     */
+    public int getRadius() {
+    	return BALL_RADIUS;
+    }
+    
+    /**
      * Update the ball's position
      */
-    public void update() {
+    public void update(double elapsedTime) {
     	// check for collisions to update velocity appropriately
-    	double newX = BALL.getTranslateX() + (XVELOCITY * MULTIPLIER);
-    	double newY = BALL.getTranslateY() + (YVELOCITY * MULTIPLIER);
+    	double newX = BALL.getTranslateX() + (XVELOCITY * MULTIPLIER * elapsedTime);
+    	double newY = BALL.getTranslateY() + (YVELOCITY * MULTIPLIER * elapsedTime);
     	if (FRENZY) {
     		newX = newX + 2;
     		newY = newY + 2;
     		BALL.setFill(randomColor());
     	}
-    	BALL.relocate(newX, newY);	
+    	BALL.setCenterX(newX);
+    	BALL.setCenterY(newY);
     }
     
     /**

@@ -89,7 +89,7 @@ public class SceneGenerator {
 				Block addBlock = new Block(xPos, yPos);
 				GENERATED_BLOCKS.add(addBlock);
 				// add block to the scene as a scene node
-				blockPos.getChildren().add(addBlock.getNode());
+				blockPos.getChildren().add(addBlock.getBlock());
 			}
 		}
 		in.close();

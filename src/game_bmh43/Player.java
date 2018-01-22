@@ -3,10 +3,12 @@ package game_bmh43;
 public class Player {
 	
 	private int LIVES;
+	private int BALLS;
 	private int ABILITY_COINS;
 
 	public Player() {
 		ABILITY_COINS = 0;
+		BALLS = 1;
 		generateLives();
 	}
 	
@@ -16,6 +18,14 @@ public class Player {
 	 */
 	public int getLives() {
 		return LIVES;
+	}
+	
+	/**
+	 * 
+	 * @return BALLS: the number of Balls the player can fire
+	 */
+	public int getBalls() {
+		return BALLS;
 	}
 	
 	/**
@@ -34,10 +44,24 @@ public class Player {
 	}
 	
 	/**
+	 * Gives the player one ball
+	 */
+	public void addBall() {
+		BALLS++;
+	}
+	
+	/**
 	 * Decrements one from the players lives
 	 */
 	public void loseLife() {
 		LIVES = LIVES - 1;
+	}
+	
+	/**
+	 * Decrements one from the players Balls
+	 */
+	public void loseBall() {
+		BALLS = BALLS - 1;
 	}
 	
 	/**
