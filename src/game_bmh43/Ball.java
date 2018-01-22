@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.Random;
 
 import javafx.scene.Node;
+import javafx.scene.Scene;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Circle;
 import javafx.scene.shape.Shape;
@@ -21,6 +22,7 @@ public class Ball {
     
     private boolean SHADOW = false;
     private boolean FRENZY = false;
+    private boolean DEAD = false;
     
     public Ball(double x, double y) {
     	this(x, y, 0, 0, 1);
@@ -96,6 +98,37 @@ public class Ball {
     }
     
     /**
+     * Checks to make sure the Ball stays in bounds
+     * 
+     * @param gameScene: the level scene containing the ball
+     */
+    public void checkBounds(Scene gameScene) {
+    	// hits left
+    	if (BALL.getCenterX() + BALL.getTranslateX() - BALL.getRadius() <= 0) {
+    		XVELOCITY = -XVELOCITY;
+    	}
+    	// hit right
+    	if (BALL.getCenterX() + BALL.getTranslateX() + BALL.getRadius() >= gameScene.getWidth()) {
+    		XVELOCITY = -XVELOCITY;
+    	}
+    	// hit top
+    	if (BALL.getCenterY() + BALL.getTranslateY() + BALL.getRadius() <= 35) {
+    		YVELOCITY = -YVELOCITY;
+    	}
+    	if (BALL.getCenterY() + BALL.getTranslateY() + BALL.getRadius() >= gameScene.getHeight() - 20) {
+    		DEAD = true;
+    	}
+    }
+    
+    /**
+     * Checks to see if the Ball goes below the paddle
+     */
+    public boolean isDead() {
+    	return DEAD;
+    	
+    }
+    
+    /**
      * Updates the velocity components of the Ball after a collision
      * 
      * @param otherBall: the other Ball this Ball is colliding with
@@ -131,6 +164,9 @@ public class Ball {
     public void handleCollision(Paddle gamePaddle, double elapsedTime) {
     	// move the ball back one frame
     	backStep(elapsedTime);
+    	Random numGenerator = new Random();
+    	int xRand = numGenerator.nextInt(21) - 10;
+    	XVELOCITY = XVELOCITY + xRand;
     	YVELOCITY = -YVELOCITY;
     }
     

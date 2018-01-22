@@ -59,8 +59,8 @@ public class GameEngine {
     private Label ABILITY_LABEL;
     private VBox LEVEL_HEADER;
     
-    private int BALL_SPEED = 100;
-    private int LEVEL = 1;
+    private int LEVEL;
+    private int BALL_SPEED; 
 	
 	/**
 	 * 
@@ -80,6 +80,7 @@ public class GameEngine {
 		// set the title of the window
 		GAME_STAGE = primaryStage;
 		GAME_STAGE.setTitle(TITLE);
+		LEVEL = 1;
 		// attach "game loop" to time line to play it
         KeyFrame frame = new KeyFrame(Duration.millis(MILLISECOND_DELAY),
                                       e -> step(SECOND_DELAY));
@@ -177,6 +178,8 @@ public class GameEngine {
      * @param levelNum: the number of the level to be generated
      */
     private void generateLevel() {
+    	// make sure the stage is clear of all scenes
+    	GAME_STAGE.setScene(new Scene(new Pane()));
     	SceneGenerator level = new SceneGenerator(LEVEL);
     	Scene levelScene = level.getScene();
     	Pane levelPane = level.getPane();
@@ -184,6 +187,10 @@ public class GameEngine {
     	// clear the ObjectManager
     	SPRITES.resetBalls();
     	SPRITES.resetBlocks();
+    	SPRITES.resetSprites();
+    	PLAYING = false;
+    	LEVEL_GENERATED = false;
+    	BALL_SPEED = 100 + LEVEL * 10;
     	// add the new blocks into the ObjectManager
     	for (Block nodeBlock : blockList) {
     		SPRITES.addBlock(nodeBlock);
@@ -302,7 +309,14 @@ public class GameEngine {
      * Generates the end of the level screen
      */
     private void endLevel() {
-    	
+    	// win
+    	if (SPRITES.numBlocks() == 0) {
+    		
+    	}
+    	// lose
+    	else {
+    		
+    	}
     }
     
     /**
@@ -331,7 +345,15 @@ public class GameEngine {
     			gameBall.stopFrenzy();
     		}
     		checkSprites(gameBall);
+    		gameBall.checkBounds(GAME_STAGE.getScene());
     		gameBall.update(elapsedTime);
+    		if (gameBall.isDead()) {
+    			REMOVE_LIST.add(gameBall);
+    			PLAYER.loseLife();
+    			if (!PLAYER.isDead()) {
+    				PLAYER.addBall();
+    			}
+    		}
     		//System.out.println("Handled Ball update");
     	}
     	handleRemoval();
@@ -344,7 +366,7 @@ public class GameEngine {
      * Waits until a ball is in play before displaying statistics bar.
      */
     private void updateStats() {
-    	if (SPRITES.numBalls() > 0) {
+    	if (PLAYING) {
     		LEVEL_LABEL.setText("Level: " + String.valueOf(LEVEL));
     		LIVES_LABEL.setText("Lives remaining: " + String.valueOf(PLAYER.getLives()));
     		BALLS_LABEL.setText("Balls availible: " + String.valueOf(PLAYER.getBalls()));
@@ -363,6 +385,37 @@ public class GameEngine {
         }
         if (code == KeyCode.LEFT) {
             LEFT_KEY = true;
+        }
+        if (code == KeyCode.B) {
+        	PLAYER.addBall();
+        }
+        if (code == KeyCode.L) {
+        	PLAYER.addLife();
+        }
+        if (code == KeyCode.DIGIT1) {
+        	PLAYER = new Player();
+        	LEVEL = 1;
+        	generateLevel();
+        }
+        if (code == KeyCode.DIGIT2) {
+        	PLAYER = new Player();
+        	LEVEL = 2;
+        	generateLevel();
+        }
+        if (code == KeyCode.DIGIT3) {
+        	PLAYER = new Player();
+        	LEVEL = 3;
+        	generateLevel();
+        }
+        if (code == KeyCode.DIGIT4) {
+        	PLAYER = new Player();
+        	LEVEL = 4;
+        	generateLevel();
+        }
+        if (code == KeyCode.DIGIT5) {
+        	PLAYER = new Player();
+        	LEVEL = 5;
+        	generateLevel();
         }
         processKey();
     }
@@ -389,6 +442,9 @@ public class GameEngine {
     	if (SPACE_KEY) {
     		if (PLAYING) {
     			// check for paddle catch ability activation
+    			if (PLAYER.getBalls() > 0) {
+    				generateBall();
+    			}
     		}
     		else {
         		PLAYING = true;
@@ -428,13 +484,6 @@ public class GameEngine {
         }
     	// check if the ball collides with any game objects
 		for (Object otherObject : SPRITES.getObjects()) {
-    		/*
-			Platform.runLater(new Runnable() {
-    			@Override
-				public void run() {
-    	        	checkCollision(gameBall, otherObject);
-				}
-    	   	});*/
 			checkCollision(gameBall, otherObject);
 		}
     }
@@ -445,9 +494,9 @@ public class GameEngine {
      * @param gameBall: Ball object to check
      * @param otherObject: Object to check
      */
-    private void checkCollision(Ball gameBall, Object otherObject) {
+    private void checkCollision(Ball gameBall, Object otherObject) {	
     	// can't collide with itself
-		if (!otherObject.equals(gameBall) &&
+    	if (!otherObject.equals(gameBall) &&
 				otherObject instanceof Ball) {
 			// check for collisions
 			// with shapes, can check precisely
@@ -468,6 +517,11 @@ public class GameEngine {
 	            if (otherBlock.isDead()) {
 	            	// prepare to destroy block
     				REMOVE_LIST.add(otherBlock);
+    				PowerUpGenerator getPowerUps = new PowerUpGenerator();
+    				Pane levelPane = (Pane) GAME_STAGE.getScene().getRoot();
+    				getPowerUps.generatePowerUp(otherBlock.getBlock().getTranslateX(),
+    						otherBlock.getBlock().getTranslateY(), levelPane);
+    				
 	            }
 			}
 		}
@@ -492,6 +546,11 @@ public class GameEngine {
 				blockFade.setToValue(0.0);
 				blockFade.play();
 				levelPane.getChildren().remove(otherBlock.getBlock());
+			}
+			else if(removeObject instanceof Ball) {
+				Ball otherBall = (Ball) removeObject;
+				SPRITES.removeBall(otherBall);
+				levelPane.getChildren().remove(otherBall.getNode());
 			}
 		}
     	// reset the removal list for the next step

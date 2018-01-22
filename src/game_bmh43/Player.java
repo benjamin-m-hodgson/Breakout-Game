@@ -9,7 +9,7 @@ public class Player {
 	public Player() {
 		ABILITY_COINS = 0;
 		BALLS = 1;
-		generateLives();
+		LIVES = 2;
 	}
 	
 	/**
@@ -73,13 +73,6 @@ public class Player {
 			return true;
 		}
 		return false;
-	}
-	
-	/**
-	 * Gives the player the correct starting number of lives
-	 */
-	private void generateLives() {
-		LIVES = 2;
 	}
 	
 }

@@ -89,6 +89,20 @@ public class ObjectManager {
 	}
 	
 	/**
+	 * Empties the list of Balls
+	 */
+	public void resetBalls() {
+		BALL_LIST.clear();
+	}
+	
+	/**
+	 * Empties the list of game Objects
+	 */
+	public void resetSprites() {
+		SPRITE_LIST.clear();
+	}
+	
+	/**
 	 * Removes a Block from the ObjectManager
 	 */
 	public void removeBlock(Block otherBlock) {
@@ -106,9 +120,19 @@ public class ObjectManager {
 	}
 	
 	/**
-	 * Empties the list of Balls
+	 * Removes a Ball from the ObjectManager
 	 */
-	public void resetBalls() {
-		BALL_LIST.clear();
+	public void removeBall(Ball otherBall) {
+		BALL_LIST.remove(otherBall);
+		Iterator<Object> ballIterate = SPRITE_LIST.iterator();
+		while (ballIterate.hasNext()) {
+			Object objBall = ballIterate.next();
+			if (objBall instanceof Ball) {
+				Ball castBall = (Ball) objBall;
+				if (castBall.equals(otherBall)) {
+					ballIterate.remove();
+				}
+			}
+		}
 	}
 }
