@@ -17,7 +17,9 @@ public class Ball {
     private double XVELOCITY;
     private double YVELOCITY;
     private double MULTIPLIER;
+    private int SHADOW_TIMER = 3;
     
+    private boolean SHADOW = false;
     private boolean FRENZY = false;
     
     public Ball(double x, double y) {
@@ -59,10 +61,27 @@ public class Ball {
     }
     
     /**
+     * @return Whether the ball is a shadow ball
+     */
+    public boolean getShadow() {
+    	return SHADOW;
+    }
+    
+    /**
      * Update the ball's position
      */
     public void update(double elapsedTime) {
-    	// check for collisions to update velocity appropriately
+    	// check for wall collisions to update velocity appropriately
+    	
+    	if (SHADOW) {
+    		SHADOW_TIMER = SHADOW_TIMER - 1;
+    		BALL.setOpacity(0.5);
+    		if (SHADOW_TIMER == 0) {
+    			SHADOW = false;
+    			SHADOW_TIMER = 3;
+    			BALL.setOpacity(1);
+    		}
+    	}
     	double newX = BALL.getCenterX() - (XVELOCITY * MULTIPLIER * elapsedTime);
     	double newY = BALL.getCenterY() - (YVELOCITY * MULTIPLIER * elapsedTime);
     	if (FRENZY) {
@@ -80,16 +99,22 @@ public class Ball {
      * @param otherBall: the other Ball this Ball is colliding with
      */
     public void handleCollision(Ball otherBall) {
-    	
+    	XVELOCITY = -XVELOCITY;
+    	YVELOCITY = -YVELOCITY;
     }
     
     /**
-     * Updates the velocity components of the Ball after a collision
+     * Updates the velocity components of the Ball after a collision.
+     * Multiple else if statements were used instead of logical or operations
+     * to increase readability.
      * 
      * @param otherBlock: the block this Ball is colliding with
      */
     public void handleCollision(Block otherBlock) {
-    	
+    	// hit from the left
+    	otherBlock.handleHit();
+    	XVELOCITY = -XVELOCITY;
+    	YVELOCITY = -YVELOCITY;
     }
     
     /**
@@ -98,7 +123,7 @@ public class Ball {
      * @param gamePaddle: the paddle this Ball is colliding with
      */
     public void handleCollision(Paddle gamePaddle) {
-    	
+    	YVELOCITY = -YVELOCITY;
     }
     
     /**

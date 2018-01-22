@@ -1,9 +1,7 @@
 package game_bmh43;
 
 import java.util.ArrayList;
-
-import javafx.scene.Node;
-import javafx.scene.shape.Shape;
+import java.util.Iterator;
 
 public class ObjectManager {
 	
@@ -94,12 +92,15 @@ public class ObjectManager {
 	 * Removes a Block from the ObjectManager
 	 */
 	public void removeBlock(Block otherBlock) {
-		int pos = BLOCK_LIST.indexOf(otherBlock);
-		BLOCK_LIST.remove(pos);
-		for (Object gameObject : SPRITE_LIST) {
-			if (gameObject instanceof Block &&
-					gameObject.equals(otherBlock)) {
-				SPRITE_LIST.remove(gameObject);
+		BLOCK_LIST.remove(otherBlock);
+		Iterator<Object> blockIterate = SPRITE_LIST.iterator();
+		while (blockIterate.hasNext()) {
+			Object objBlock = blockIterate.next();
+			if (objBlock instanceof Block) {
+				Block castBlock = (Block) objBlock;
+				if (castBlock.equals(otherBlock)) {
+					blockIterate.remove();
+				}
 			}
 		}
 	}

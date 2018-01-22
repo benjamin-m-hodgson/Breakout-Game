@@ -6,8 +6,6 @@ import java.util.Scanner;
 
 import javafx.scene.Scene;
 import javafx.scene.layout.Pane;
-import javafx.scene.paint.Color;
-import javafx.scene.shape.Rectangle;
 
 /**
  * 
@@ -21,6 +19,10 @@ public class SceneGenerator {
 	private final int WIDTH = 800;
 	private final int HEIGHT = 600;
 	private final String BLOCK_FILE = "BlockPositions.txt";
+	private final String TYPE_STANDARD = "Standard";
+    private final String TYPE_TWO = "Two-Hit";
+    private final String TYPE_THREE = "Three-Hit";
+    private final String TYPE_SPEED = "Speed";
 	
 	private Scene LEVEL_SCENE;
 	private int LEVEL_NUM;
@@ -83,10 +85,21 @@ public class SceneGenerator {
 			int xPos = in.nextInt();
 			int yPos = in.nextInt();
 			// conditional to determine if a block appears
-			int blockSpawn = numGenerator.nextInt(101);
-			if (blockSpawn <= 40 + (LEVEL_NUM * 10)) {
+			int blockSpawn = numGenerator.nextInt(11);
+			if (blockSpawn <= 4 + LEVEL_NUM) {
 				// generate block
-				Block addBlock = new Block(xPos, yPos);
+				String type = TYPE_STANDARD;
+				int typeSpawn = numGenerator.nextInt(8);
+				if (typeSpawn + LEVEL_NUM > 6) {
+					type = TYPE_THREE;
+				}
+				else if (typeSpawn + LEVEL_NUM > 5) {
+					type = TYPE_TWO;
+				}
+				else if (typeSpawn + LEVEL_NUM == 5) {
+					type = TYPE_SPEED;
+				}
+				Block addBlock = new Block(xPos, yPos, type);
 				GENERATED_BLOCKS.add(addBlock);
 				// add block to the scene as a scene node
 				blockPos.getChildren().add(addBlock.getBlock());

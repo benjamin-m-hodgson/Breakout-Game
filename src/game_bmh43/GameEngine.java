@@ -5,8 +5,10 @@ import java.util.Random;
 
 import game_bmh43.Ball;
 import game_bmh43.Block;
+import javafx.animation.FadeTransition;
 import javafx.animation.KeyFrame;
 import javafx.animation.Timeline;
+import javafx.application.Platform;
 import javafx.event.EventHandler;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
@@ -55,7 +57,7 @@ public class GameEngine {
     private Label LIVES_LABEL;
     private Label BALLS_LABEL;
     private Label ABILITY_LABEL;
-    private Label INTRO_LABEL;
+    private VBox LEVEL_HEADER;
     
     private int BALL_SPEED = 75;
     private int LEVEL = 1;
@@ -192,10 +194,10 @@ public class GameEngine {
     	SPRITES.addPaddle(gamePaddle);
     	levelPane.getChildren().add(gamePaddle.getShape());
     	// add the level heading
-    	VBox levelHeader = generateLevelHeader();
-    	levelHeader.relocate(levelScene.getWidth()/2 - levelHeader.getMinWidth()/2, 
-    			levelScene.getHeight()/2 - levelHeader.getMinHeight()/2);
-    	levelPane.getChildren().add(levelHeader);
+    	LEVEL_HEADER = generateLevelHeader();
+    	LEVEL_HEADER.relocate(levelScene.getWidth()/2 - LEVEL_HEADER.getMinWidth()/2, 
+    			levelScene.getHeight()/2 - LEVEL_HEADER.getMinHeight()/2);
+    	levelPane.getChildren().add(LEVEL_HEADER);
     	// set key handler
     	levelScene.setOnKeyPressed(e -> handleKeyPress(e.getCode()));
     	levelScene.setOnKeyReleased(e -> handleKeyRelease(e.getCode()));
@@ -289,7 +291,7 @@ public class GameEngine {
     	Rectangle Paddle = SPRITES.getPaddle().getShape();
     	Pane levelPane = (Pane) GAME_STAGE.getScene().getRoot();
     	Ball newBall = new Ball(Paddle.getX() + Paddle.getWidth() / 2, 
-    			levelPane.getHeight() - Paddle.getHeight() * 2,
+    			levelPane.getHeight() - Paddle.getHeight() * 4,
     			xRand, BALL_SPEED, LEVEL);
     	SPRITES.addBall(newBall);
     	PLAYER.loseBall(); 
@@ -328,7 +330,7 @@ public class GameEngine {
     				gameBall.inFrenzy()) {
     			gameBall.stopFrenzy();
     		}
-    		checkCollisions(gameBall);
+    		checkSprites(gameBall);
     		gameBall.update(elapsedTime);
     		//System.out.println("Handled Ball update");
     	}
@@ -346,7 +348,7 @@ public class GameEngine {
     		LIVES_LABEL.setText("Lives remaining: " + String.valueOf(PLAYER.getLives()));
     		BALLS_LABEL.setText("Balls availible: " + String.valueOf(PLAYER.getBalls()));
     		ABILITY_LABEL.setText("Ability coins: " + String.valueOf(PLAYER.getAbilityCoins()));
-    		System.out.println("Handled stats update");
+    		//System.out.println("Handled stats update");
     	}
     }
     
@@ -388,8 +390,11 @@ public class GameEngine {
     			// check for paddle catch ability activation
     		}
     		else {
-    			// generate ball
         		PLAYING = true;
+        		// remove level heading
+        		Pane levelPane = (Pane) GAME_STAGE.getScene().getRoot();
+        		levelPane.getChildren().remove(LEVEL_HEADER);
+        		// generate ball
         		generateBall();
     		}
     	}
@@ -409,43 +414,76 @@ public class GameEngine {
     }
     
     /**
-     * Checks if the given argument collides with another Ball or Block
+     * Checks if the given argument collides with another game Object
      * NOTE: code seems repetitive. May consider revising. 
      * 
-     * @param gameBall: Ball object to check for collisions
+     * @param gameBall: Ball object to check against other objects
      */
-    private void checkCollisions(Ball gameBall) {
+    private void checkSprites(Ball gameBall) {
     	Shape paddleHit = Shape.intersect(gameBall.getBall(), SPRITES.getPaddle().getShape());
     	if (paddleHit.getBoundsInLocal().getWidth() != -1) {
             gameBall.handleCollision(SPRITES.getPaddle());
         }
-    	for (Object otherObject : SPRITES.getObjects()) {
-    		// can't collide with itself
-    		if (!otherObject.equals(gameBall) &&
-    				otherObject instanceof Ball) {
-    			// check for collisions
-    			// with shapes, can check precisely
-    			Ball otherBall = (Ball) otherObject;
-    			Shape intersect = Shape.intersect(gameBall.getBall(), otherBall.getBall());
-    			if (intersect.getBoundsInLocal().getWidth() != -1) {
-    	            gameBall.handleCollision(otherBall);
-    	        }
-    		}
-    		else if (otherObject instanceof Block) {
-    			// check for collisions
-    			// with shapes, can check precisely
-    			Block otherBlock = (Block) otherObject;
-    			Shape intersect = Shape.intersect(gameBall.getBall(), otherBlock.getBlock());
-    			if (intersect.getBoundsInLocal().getWidth() != -1) {
-    	            gameBall.handleCollision(otherBlock);
-    	            otherBlock.handleImplode();
-    	            SPRITES.removeBlock(otherBlock);
-    	        }
-    		}
-    		// else its a power up that needs to be applied
-    		else {
-    			
-    		}
+		for (Object otherObject : SPRITES.getObjects()) {
+    		Platform.runLater(new Runnable() {
+    			@Override
+				public void run() {
+    	        	checkCollision(gameBall, otherObject);
+				}
+    	   	});    	
     	}
+    }
+    
+    /**
+     * Checks whether the gameBall collides with a specific otherObject
+     * 
+     * @param gameBall: Ball object to check
+     * @param otherObject: Object to check
+     */
+    private void checkCollision(Ball gameBall, Object otherObject) {
+    	ArrayList<Object> removeList = new ArrayList<Object>();
+    	// can't collide with itself
+		if (!otherObject.equals(gameBall) &&
+				otherObject instanceof Ball) {
+			// check for collisions
+			// with shapes, can check precisely
+			Ball otherBall = (Ball) otherObject;
+			Shape intersect = Shape.intersect(gameBall.getBall(), otherBall.getBall());
+			if (intersect.getBoundsInLocal().getWidth() != -1) {
+	            gameBall.handleCollision(otherBall);
+	        }
+		}
+		else if (otherObject instanceof Block) {
+			// check for collisions
+			// with shapes, can check precisely
+			// if intersect shape position is less than block position
+			Block otherBlock = (Block) otherObject;
+			Shape intersect = Shape.intersect(gameBall.getBall(), otherBlock.getBlock());
+			if (intersect.getBoundsInLocal().getWidth() != -1) {
+	            gameBall.handleCollision(otherBlock);
+	            otherBlock.handleHit();
+	            if (otherBlock.isDead()) {
+	            	// destroy block
+	        		Pane levelPane = (Pane) GAME_STAGE.getScene().getRoot();
+	        		FadeTransition blockFade = new FadeTransition(Duration.seconds(1),
+	            			otherBlock.getBlock());
+					blockFade.setFromValue(1.0);
+					blockFade.setToValue(0.0);
+					blockFade.play();
+    				levelPane.getChildren().remove(otherBlock.getBlock());
+    				removeList.add(otherBlock);
+	            }
+			}
+		}
+		// else its a power up that needs to be applied
+		else {
+			
+		}
+		for (Object removeObject : removeList) {
+			if (removeObject instanceof Block) {
+				Block otherBlock = (Block) removeObject;
+				SPRITES.removeBlock(otherBlock);
+			}
+		}
     }
 }
