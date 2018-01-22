@@ -21,16 +21,16 @@ public class Ball {
     private boolean FRENZY = false;
     
     public Ball(double x, double y) {
-    	this(x, y, 0, 0);
+    	this(x, y, 0, 0, 1);
     }
     
     public Ball(double xPos, double yPos,
-    		double xV, double yV) {
+    		double xV, double yV, int levelNum) {
     	BALL = new Circle(BALL_RADIUS, BALL_COLOR);
     	BALL.relocate(xPos, yPos);
     	XVELOCITY = xV;
     	YVELOCITY = yV;
-    	MULTIPLIER = 1;
+    	MULTIPLIER = 0.9 + (levelNum * 0.1);
     }
     
     /**
@@ -92,6 +92,14 @@ public class Ball {
     }
     
     /**
+     * 
+     * @return FRENZY: true if ball is in frenzy mode, false otherwise
+     */
+    public boolean inFrenzy() {
+    	return FRENZY;
+    }
+    
+    /**
      * Turns on frenzy mode
      */
     public void startFrenzy() {
@@ -110,7 +118,7 @@ public class Ball {
      * Applies a boost to the ball's speed
      */
     public void applyBoost() {
-    	MULTIPLIER = 1.3;
+    	MULTIPLIER = MULTIPLIER + 0.1;
     }
     
     /**

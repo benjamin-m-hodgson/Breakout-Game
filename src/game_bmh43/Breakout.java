@@ -27,7 +27,7 @@ public class Breakout extends Application {
 		// display the menu screen
 		gameDriver.startGame(primaryStage);
 		// begin the game
-		gameDriver.playGame(primaryStage);
+		gameDriver.playGame();
 		primaryStage.show();
 	}
 	

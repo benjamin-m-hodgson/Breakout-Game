@@ -3,9 +3,27 @@ package game_bmh43;
 public class Player {
 	
 	private int LIVES;
+	private int ABILITY_COINS;
 
 	public Player() {
+		ABILITY_COINS = 0;
 		generateLives();
+	}
+	
+	/**
+	 * 
+	 * @return LIVES: the number of remaining lives for the player
+	 */
+	public int getLives() {
+		return LIVES;
+	}
+	
+	/**
+	 * 
+	 * @return ABILITY_COINS: the number of available ability coins
+	 */
+	public int getAbilityCoins() {
+		return ABILITY_COINS;
 	}
 	
 	/**
