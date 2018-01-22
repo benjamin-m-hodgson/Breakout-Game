@@ -82,8 +82,10 @@ public class Ball {
     			BALL.setOpacity(1);
     		}
     	}
-    	double newX = BALL.getCenterX() - (XVELOCITY * MULTIPLIER * elapsedTime);
-    	double newY = BALL.getCenterY() - (YVELOCITY * MULTIPLIER * elapsedTime);
+    	double newX = BALL.getCenterX() + BALL.getTranslateX() - 
+    			(XVELOCITY * MULTIPLIER * elapsedTime);
+    	double newY = BALL.getCenterY() + BALL.getTranslateY() - 
+    			(YVELOCITY * MULTIPLIER * elapsedTime);
     	if (FRENZY) {
     		newX = newX - 2;
     		newY = newY - 2;
@@ -98,7 +100,10 @@ public class Ball {
      * 
      * @param otherBall: the other Ball this Ball is colliding with
      */
-    public void handleCollision(Ball otherBall) {
+    public void handleCollision(Ball otherBall, double elapsedTime) {
+    	// move the ball back one frame
+    	backStep(elapsedTime);
+    	// update its velocity
     	XVELOCITY = -XVELOCITY;
     	YVELOCITY = -YVELOCITY;
     }
@@ -110,8 +115,9 @@ public class Ball {
      * 
      * @param otherBlock: the block this Ball is colliding with
      */
-    public void handleCollision(Block otherBlock) {
-    	// hit from the left
+    public void handleCollision(Block otherBlock, double elapsedTime) {
+    	// move the ball back one frame
+    	backStep(elapsedTime);
     	otherBlock.handleHit();
     	XVELOCITY = -XVELOCITY;
     	YVELOCITY = -YVELOCITY;
@@ -122,7 +128,9 @@ public class Ball {
      * 
      * @param gamePaddle: the paddle this Ball is colliding with
      */
-    public void handleCollision(Paddle gamePaddle) {
+    public void handleCollision(Paddle gamePaddle, double elapsedTime) {
+    	// move the ball back one frame
+    	backStep(elapsedTime);
     	YVELOCITY = -YVELOCITY;
     }
     
@@ -171,6 +179,18 @@ public class Ball {
     	Random numPicker = new Random();
     	Color randColor = colorList.get(numPicker.nextInt(colorList.size()));
     	return randColor;
+    }
+    
+    /**
+     * Moves the ball's position one frame backwards to reduce clipping through objects
+     */
+    private void backStep(double elapsedTime) {
+    	double newX = BALL.getCenterX() + BALL.getTranslateX() + 
+    			(XVELOCITY * MULTIPLIER * elapsedTime);
+    	double newY = BALL.getCenterY() + BALL.getTranslateY() + 
+    			(YVELOCITY * MULTIPLIER * elapsedTime);
+    	BALL.setCenterX(newX);
+    	BALL.setCenterY(newY);
     }
 	
 }

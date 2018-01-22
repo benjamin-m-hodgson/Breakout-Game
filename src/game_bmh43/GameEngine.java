@@ -8,7 +8,6 @@ import game_bmh43.Block;
 import javafx.animation.FadeTransition;
 import javafx.animation.KeyFrame;
 import javafx.animation.Timeline;
-import javafx.application.Platform;
 import javafx.event.EventHandler;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
@@ -52,6 +51,7 @@ public class GameEngine {
     
     private ObjectManager SPRITES = new ObjectManager();
     private Player PLAYER = new Player();
+    ArrayList<Object> REMOVE_LIST = new ArrayList<Object>();
     
     private Label LEVEL_LABEL;
     private Label LIVES_LABEL;
@@ -59,7 +59,7 @@ public class GameEngine {
     private Label ABILITY_LABEL;
     private VBox LEVEL_HEADER;
     
-    private int BALL_SPEED = 75;
+    private int BALL_SPEED = 100;
     private int LEVEL = 1;
 	
 	/**
@@ -334,6 +334,7 @@ public class GameEngine {
     		gameBall.update(elapsedTime);
     		//System.out.println("Handled Ball update");
     	}
+    	handleRemoval();
     	// update statistics
     	updateStats();
     }
@@ -420,18 +421,22 @@ public class GameEngine {
      * @param gameBall: Ball object to check against other objects
      */
     private void checkSprites(Ball gameBall) {
+    	// reset the ball miss counter
     	Shape paddleHit = Shape.intersect(gameBall.getBall(), SPRITES.getPaddle().getShape());
     	if (paddleHit.getBoundsInLocal().getWidth() != -1) {
-            gameBall.handleCollision(SPRITES.getPaddle());
+            gameBall.handleCollision(SPRITES.getPaddle(), SECOND_DELAY);
         }
+    	// check if the ball collides with any game objects
 		for (Object otherObject : SPRITES.getObjects()) {
-    		Platform.runLater(new Runnable() {
+    		/*
+			Platform.runLater(new Runnable() {
     			@Override
 				public void run() {
     	        	checkCollision(gameBall, otherObject);
 				}
-    	   	});    	
-    	}
+    	   	});*/
+			checkCollision(gameBall, otherObject);
+		}
     }
     
     /**
@@ -441,7 +446,6 @@ public class GameEngine {
      * @param otherObject: Object to check
      */
     private void checkCollision(Ball gameBall, Object otherObject) {
-    	ArrayList<Object> removeList = new ArrayList<Object>();
     	// can't collide with itself
 		if (!otherObject.equals(gameBall) &&
 				otherObject instanceof Ball) {
@@ -450,7 +454,7 @@ public class GameEngine {
 			Ball otherBall = (Ball) otherObject;
 			Shape intersect = Shape.intersect(gameBall.getBall(), otherBall.getBall());
 			if (intersect.getBoundsInLocal().getWidth() != -1) {
-	            gameBall.handleCollision(otherBall);
+	            gameBall.handleCollision(otherBall, SECOND_DELAY);
 	        }
 		}
 		else if (otherObject instanceof Block) {
@@ -460,18 +464,10 @@ public class GameEngine {
 			Block otherBlock = (Block) otherObject;
 			Shape intersect = Shape.intersect(gameBall.getBall(), otherBlock.getBlock());
 			if (intersect.getBoundsInLocal().getWidth() != -1) {
-	            gameBall.handleCollision(otherBlock);
-	            otherBlock.handleHit();
+	            gameBall.handleCollision(otherBlock, SECOND_DELAY);
 	            if (otherBlock.isDead()) {
-	            	// destroy block
-	        		Pane levelPane = (Pane) GAME_STAGE.getScene().getRoot();
-	        		FadeTransition blockFade = new FadeTransition(Duration.seconds(1),
-	            			otherBlock.getBlock());
-					blockFade.setFromValue(1.0);
-					blockFade.setToValue(0.0);
-					blockFade.play();
-    				levelPane.getChildren().remove(otherBlock.getBlock());
-    				removeList.add(otherBlock);
+	            	// prepare to destroy block
+    				REMOVE_LIST.add(otherBlock);
 	            }
 			}
 		}
@@ -479,11 +475,26 @@ public class GameEngine {
 		else {
 			
 		}
-		for (Object removeObject : removeList) {
+    }
+    
+    /**
+     * Removes the out of play balls off the screen and the broken blocks
+     */
+    private void handleRemoval() {
+    	Pane levelPane = (Pane) GAME_STAGE.getScene().getRoot();
+    	for (Object removeObject : REMOVE_LIST) {
 			if (removeObject instanceof Block) {
 				Block otherBlock = (Block) removeObject;
 				SPRITES.removeBlock(otherBlock);
+				FadeTransition blockFade = new FadeTransition(Duration.seconds(1),
+		    			otherBlock.getBlock());
+				blockFade.setFromValue(1.0);
+				blockFade.setToValue(0.0);
+				blockFade.play();
+				levelPane.getChildren().remove(otherBlock.getBlock());
 			}
 		}
+    	// reset the removal list for the next step
+    	REMOVE_LIST.clear();
     }
 }
