@@ -3,6 +3,9 @@ package game_bmh43;
 import java.util.ArrayList;
 import java.util.Random;
 
+import javafx.animation.Interpolator;
+import javafx.animation.Timeline;
+import javafx.animation.Transition;
 import javafx.scene.Node;
 import javafx.scene.Scene;
 import javafx.scene.paint.Color;
@@ -14,11 +17,14 @@ public class Ball {
 	private Circle BALL;
     private final int BALL_RADIUS = 6;
     private final Color BALL_COLOR = Color.WHITESMOKE;
+    private final double BALL_BOOST = 1.5;
     
     private double XVELOCITY;
     private double YVELOCITY;
     private double MULTIPLIER;
     private int SHADOW_TIMER = 3;
+    
+    private Transition COLOR_CHANGE;
     
     private boolean SHADOW = false;
     private boolean FRENZY = false;
@@ -36,6 +42,16 @@ public class Ball {
     	XVELOCITY = xV;
     	YVELOCITY = yV;
     	MULTIPLIER = 0.9 + (levelNum * 0.1);
+    	COLOR_CHANGE = new Transition() {
+    		{
+    			setCycleCount(Timeline.INDEFINITE);
+    			setInterpolator(Interpolator.DISCRETE);
+    		}
+			@Override
+			protected void interpolate(double arg0) {
+				BALL.setFill(randomColor());
+			}
+		};
     }
     
     /**
@@ -73,8 +89,6 @@ public class Ball {
      * Update the ball's position
      */
     public void update(double elapsedTime) {
-    	// check for wall collisions to update velocity appropriately
-    	
     	if (SHADOW) {
     		SHADOW_TIMER = SHADOW_TIMER - 1;
     		BALL.setOpacity(0.5);
@@ -88,11 +102,6 @@ public class Ball {
     			(XVELOCITY * MULTIPLIER * elapsedTime);
     	double newY = BALL.getCenterY() + BALL.getTranslateY() - 
     			(YVELOCITY * MULTIPLIER * elapsedTime);
-    	if (FRENZY) {
-    		newX = newX - 2;
-    		newY = newY - 2;
-    		BALL.setFill(randomColor());
-    	}
     	BALL.setCenterX(newX);
     	BALL.setCenterY(newY);
     }
@@ -183,6 +192,7 @@ public class Ball {
      */
     public void startFrenzy() {
     	FRENZY = true;
+    	COLOR_CHANGE.playFromStart();
     }
     
     /**
@@ -190,6 +200,7 @@ public class Ball {
      */
     public void stopFrenzy() {
     	FRENZY = false;
+    	COLOR_CHANGE.stop();
     	BALL.setFill(BALL_COLOR);
     }
     

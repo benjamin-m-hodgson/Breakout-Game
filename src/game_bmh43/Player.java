@@ -51,6 +51,13 @@ public class Player {
 	}
 	
 	/**
+	 * Gives the player one ability coin
+	 */
+	public void addAbility() {
+		ABILITY_COINS++;
+	}
+	
+	/**
 	 * Decrements one from the players lives
 	 */
 	public void loseLife() {
@@ -62,6 +69,13 @@ public class Player {
 	 */
 	public void loseBall() {
 		BALLS = BALLS - 1;
+	}
+	
+	/**
+	 * Decrements one from the players Ability coins
+	 */
+	public void loseAbility() {
+		ABILITY_COINS = ABILITY_COINS - 1;
 	}
 	
 	/**

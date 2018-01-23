@@ -52,6 +52,7 @@ public class GameEngine {
     private ObjectManager SPRITES = new ObjectManager();
     private Player PLAYER = new Player();
     ArrayList<Object> REMOVE_LIST = new ArrayList<Object>();
+    ArrayList<PowerUp> POWER_LIST = new ArrayList<PowerUp>();
     
     private Label LEVEL_LABEL;
     private Label LIVES_LABEL;
@@ -302,7 +303,31 @@ public class GameEngine {
     			xRand, BALL_SPEED, LEVEL);
     	SPRITES.addBall(newBall);
     	PLAYER.loseBall(); 
-    	levelPane.getChildren().add(newBall.getNode());
+    	levelPane.getChildren().add(newBall.getBall());
+    }
+    
+    /**
+     * Generates a PowerUp
+     */
+    private void generatePowerUp(double x, double y) {
+    	Pane levelPane = (Pane) GAME_STAGE.getScene().getRoot();
+    	Random numGenerator = new Random();
+    	int choice = numGenerator.nextInt(11);
+    	if (choice == 0) {
+    		// shadow ball generate
+    	}
+    	else if (choice >= 1 && choice < 3) {
+    		ExtraLife lifeUp = new ExtraLife(x, y, levelPane);
+    		POWER_LIST.add(lifeUp);
+    	}
+    	else if (choice >= 3 && choice < 7) {
+    		ExtraBall ballUp = new ExtraBall(x, y, levelPane);
+    		POWER_LIST.add(ballUp);
+    	}
+    	else {
+    		AbilityCoin abilityUp = new AbilityCoin(x, y, levelPane);
+    		POWER_LIST.add(abilityUp);
+    	}
     }
     
     /**
@@ -356,6 +381,9 @@ public class GameEngine {
     		}
     		//System.out.println("Handled Ball update");
     	}
+    	// handle Power Ups
+    	handlePowerUps(elapsedTime);
+    	// clean up
     	handleRemoval();
     	// update statistics
     	updateStats();
@@ -379,6 +407,12 @@ public class GameEngine {
     private void handleKeyPress(KeyCode code) {
     	if (code == KeyCode.SPACE) {
         	SPACE_KEY = true;
+        	if (PLAYING) {
+    			// handle additional ball on Press to avoid animation glitches
+    			if (PLAYER.getBalls() > 0) {
+    				generateBall();
+    			}
+    		}
         }
     	if (code == KeyCode.RIGHT) {
             RIGHT_KEY = true;
@@ -440,13 +474,7 @@ public class GameEngine {
             }
     	}
     	if (SPACE_KEY) {
-    		if (PLAYING) {
-    			// check for paddle catch ability activation
-    			if (PLAYER.getBalls() > 0) {
-    				generateBall();
-    			}
-    		}
-    		else {
+    		if (!PLAYING) {
         		PLAYING = true;
         		// remove level heading
         		Pane levelPane = (Pane) GAME_STAGE.getScene().getRoot();
@@ -468,6 +496,66 @@ public class GameEngine {
         if (code == KeyCode.SPACE && SPACE_KEY) {
         	SPACE_KEY = false;
         }
+    }
+    
+    /**
+     * Handles applying PowerUps
+     */
+    private void handlePowerUps(double elapsedTime) {
+    	for (PowerUp power : POWER_LIST) {
+    		power.update(elapsedTime);
+    		if (power.isColliding(SPRITES.getPaddle())) {
+    			if (power instanceof ExtraLife) {
+    				power.fade();
+    				Pane levelPane = (Pane) GAME_STAGE.getScene().getRoot();
+            		levelPane.getChildren().remove(power.getShape());
+            		PLAYER.addLife();
+    			}
+    			else if (power instanceof ExtraBall) {
+    				power.fade();
+    				Pane levelPane = (Pane) GAME_STAGE.getScene().getRoot();
+            		levelPane.getChildren().remove(power.getShape());
+            		PLAYER.addBall();
+    			}
+    			else if (power instanceof AbilityCoin) {
+    				power.fade();
+    				Pane levelPane = (Pane) GAME_STAGE.getScene().getRoot();
+            		levelPane.getChildren().remove(power.getShape());
+            		PLAYER.addAbility();
+    			}
+    		REMOVE_LIST.add(power);
+    		}
+    	}
+    }
+    
+    /**
+     * Removes the out of play balls off the screen and the broken blocks
+     */
+    private void handleRemoval() {
+    	Pane levelPane = (Pane) GAME_STAGE.getScene().getRoot();
+    	for (Object removeObject : REMOVE_LIST) {
+			if (removeObject instanceof Block) {
+				Block otherBlock = (Block) removeObject;
+				SPRITES.removeBlock(otherBlock);
+				FadeTransition blockFade = new FadeTransition(Duration.seconds(1),
+		    			otherBlock.getBlock());
+				blockFade.setFromValue(1.0);
+				blockFade.setToValue(0.0);
+				blockFade.play();
+				levelPane.getChildren().remove(otherBlock.getBlock());
+			}
+			else if(removeObject instanceof Ball) {
+				Ball otherBall = (Ball) removeObject;
+				SPRITES.removeBall(otherBall);
+				levelPane.getChildren().remove(otherBall.getBall());
+			}
+			else if(removeObject instanceof PowerUp) {
+				PowerUp otherPower = (PowerUp) removeObject;
+				POWER_LIST.remove(otherPower);
+			}
+		}
+    	// reset the removal list for the next step
+    	REMOVE_LIST.clear();
     }
     
     /**
@@ -517,43 +605,14 @@ public class GameEngine {
 	            if (otherBlock.isDead()) {
 	            	// prepare to destroy block
     				REMOVE_LIST.add(otherBlock);
-    				PowerUpGenerator getPowerUps = new PowerUpGenerator();
-    				Pane levelPane = (Pane) GAME_STAGE.getScene().getRoot();
-    				getPowerUps.generatePowerUp(otherBlock.getBlock().getTranslateX(),
-    						otherBlock.getBlock().getTranslateY(), levelPane);
+    				double xPos = otherBlock.getBlock().getBoundsInParent().getMinX() + 
+    						otherBlock.getBlock().getBoundsInParent().getWidth() / 2;
+    				double yPos = otherBlock.getBlock().getBoundsInParent().getMinY() + 
+    						otherBlock.getBlock().getBoundsInParent().getHeight() / 2;
+    				generatePowerUp(xPos, yPos);
     				
 	            }
 			}
 		}
-		// else its a power up that needs to be applied
-		else {
-			
-		}
-    }
-    
-    /**
-     * Removes the out of play balls off the screen and the broken blocks
-     */
-    private void handleRemoval() {
-    	Pane levelPane = (Pane) GAME_STAGE.getScene().getRoot();
-    	for (Object removeObject : REMOVE_LIST) {
-			if (removeObject instanceof Block) {
-				Block otherBlock = (Block) removeObject;
-				SPRITES.removeBlock(otherBlock);
-				FadeTransition blockFade = new FadeTransition(Duration.seconds(1),
-		    			otherBlock.getBlock());
-				blockFade.setFromValue(1.0);
-				blockFade.setToValue(0.0);
-				blockFade.play();
-				levelPane.getChildren().remove(otherBlock.getBlock());
-			}
-			else if(removeObject instanceof Ball) {
-				Ball otherBall = (Ball) removeObject;
-				SPRITES.removeBall(otherBall);
-				levelPane.getChildren().remove(otherBall.getNode());
-			}
-		}
-    	// reset the removal list for the next step
-    	REMOVE_LIST.clear();
     }
 }
