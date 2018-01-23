@@ -5,11 +5,13 @@ public class Player {
 	private int LIVES;
 	private int BALLS;
 	private int ABILITY_COINS;
+	private boolean DEAD;
 
 	public Player() {
 		ABILITY_COINS = 0;
 		BALLS = 1;
 		LIVES = 2;
+		DEAD = false;
 	}
 	
 	/**
@@ -81,12 +83,18 @@ public class Player {
 	/**
 	 * Checks to see if the player has any remaining lives
 	 */
-	public boolean isDead() {
+	public void updateDead() {
 		if (LIVES < 0) {
 			LIVES = 0;
-			return true;
+			DEAD = true;
 		}
-		return false;
 	}
 	
+	/**
+	 * @return if the player has any remaining lives
+	 * 
+	 */
+	public boolean isDead() {
+		return DEAD;
+	}
 }

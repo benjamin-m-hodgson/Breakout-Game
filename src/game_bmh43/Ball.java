@@ -3,28 +3,31 @@ package game_bmh43;
 import java.util.ArrayList;
 import java.util.Random;
 
-import javafx.animation.Interpolator;
+import javafx.animation.Animation;
+import javafx.animation.KeyFrame;
 import javafx.animation.Timeline;
-import javafx.animation.Transition;
 import javafx.scene.Node;
 import javafx.scene.Scene;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Circle;
 import javafx.scene.shape.Shape;
+import javafx.util.Duration;
 
 public class Ball {
 
 	private Circle BALL;
     private final int BALL_RADIUS = 6;
     private final Color BALL_COLOR = Color.WHITESMOKE;
-    private final double BALL_BOOST = 1.5;
+    private final double FRAMES_PER_SECOND = 2;
+	private final double MILLISECOND_DELAY = 1000 / FRAMES_PER_SECOND;
+    private final double SECOND_DELAY = 1.0 / FRAMES_PER_SECOND;
+    //private final double BALL_BOOST = 1.5;
     
     private double XVELOCITY;
     private double YVELOCITY;
     private double MULTIPLIER;
-    private int SHADOW_TIMER = 3;
     
-    private Transition COLOR_CHANGE;
+    private Timeline TIME;
     
     private boolean SHADOW = false;
     private boolean FRENZY = false;
@@ -42,16 +45,11 @@ public class Ball {
     	XVELOCITY = xV;
     	YVELOCITY = yV;
     	MULTIPLIER = 0.9 + (levelNum * 0.1);
-    	COLOR_CHANGE = new Transition() {
-    		{
-    			setCycleCount(Timeline.INDEFINITE);
-    			setInterpolator(Interpolator.DISCRETE);
-    		}
-			@Override
-			protected void interpolate(double arg0) {
-				BALL.setFill(randomColor());
-			}
-		};
+    	TIME = new Timeline(); 
+    	TIME.setCycleCount(Animation.INDEFINITE);
+    	KeyFrame colorBall = new KeyFrame(Duration.millis(MILLISECOND_DELAY), 
+    			e -> ballStep(SECOND_DELAY));
+    	TIME.getKeyFrames().add(colorBall);
     }
     
     /**
@@ -66,7 +64,7 @@ public class Ball {
      * 
      * @return Ball as it's Shape object
      */
-    public Shape getBall() {
+    public Circle getBall() {
     	return BALL;
     }
     
@@ -89,15 +87,6 @@ public class Ball {
      * Update the ball's position
      */
     public void update(double elapsedTime) {
-    	if (SHADOW) {
-    		SHADOW_TIMER = SHADOW_TIMER - 1;
-    		BALL.setOpacity(0.5);
-    		if (SHADOW_TIMER == 0) {
-    			SHADOW = false;
-    			SHADOW_TIMER = 3;
-    			BALL.setOpacity(1);
-    		}
-    	}
     	double newX = BALL.getCenterX() + BALL.getTranslateX() - 
     			(XVELOCITY * MULTIPLIER * elapsedTime);
     	double newY = BALL.getCenterY() + BALL.getTranslateY() - 
@@ -143,8 +132,10 @@ public class Ball {
      * @param otherBall: the other Ball this Ball is colliding with
      */
     public void handleCollision(Ball otherBall, double elapsedTime) {
-    	// move the ball back one frame
-    	backStep(elapsedTime);
+    	// move the ball back some frames
+    	while (Shape.intersect(otherBall.getBall(), BALL).getBoundsInLocal().getWidth() != -1) {
+    		backStep(elapsedTime);
+    	}
     	// update its velocity
     	XVELOCITY = -XVELOCITY;
     	YVELOCITY = -YVELOCITY;
@@ -161,6 +152,12 @@ public class Ball {
     	// move the ball back one frame
     	backStep(elapsedTime);
     	otherBlock.handleHit();
+    	// make interesting, semi random ricochet
+    	Random numGenerator = new Random();
+    	int xRand = numGenerator.nextInt(21) - 10;
+    	int yRand = numGenerator.nextInt(21) - 10;
+    	XVELOCITY = XVELOCITY + xRand;
+    	YVELOCITY = YVELOCITY + yRand;
     	XVELOCITY = -XVELOCITY;
     	YVELOCITY = -YVELOCITY;
     }
@@ -192,7 +189,7 @@ public class Ball {
      */
     public void startFrenzy() {
     	FRENZY = true;
-    	COLOR_CHANGE.playFromStart();
+    	TIME.play();
     }
     
     /**
@@ -200,7 +197,7 @@ public class Ball {
      */
     public void stopFrenzy() {
     	FRENZY = false;
-    	COLOR_CHANGE.stop();
+    	TIME.stop();
     	BALL.setFill(BALL_COLOR);
     }
     
@@ -213,16 +210,26 @@ public class Ball {
     
     /**
      * 
+     * @param elapsedTime: time since last frame
+     */
+    private void ballStep(double elapsedTime) {
+    	if (FRENZY){
+    		BALL.setFill(randomColor());
+    	}
+    }
+    
+    /**
+     * 
      * @return Color: a Randomly chosen Color
      */
     private Color randomColor() {
     	ArrayList<Color> colorList = new ArrayList<Color>();
-    	colorList.add(Color.YELLOW);
-    	colorList.add(Color.GREEN); 
-    	colorList.add(Color.PURPLE); 
-    	colorList.add(Color.RED);
-    	colorList.add(Color.BLUE); 
-    	colorList.add(Color.PINK);
+    	colorList.add(Color.LIGHTYELLOW);
+    	colorList.add(Color.LIGHTGREEN); 
+    	colorList.add(Color.LIGHTPINK); 
+    	colorList.add(Color.LIGHTCORAL);
+    	colorList.add(Color.LIGHTBLUE); 
+    	colorList.add(Color.LIGHTCYAN);
     	Random numPicker = new Random();
     	Color randColor = colorList.get(numPicker.nextInt(colorList.size()));
     	return randColor;

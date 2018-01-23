@@ -8,6 +8,7 @@ import game_bmh43.Block;
 import javafx.animation.FadeTransition;
 import javafx.animation.KeyFrame;
 import javafx.animation.Timeline;
+import javafx.application.Platform;
 import javafx.event.EventHandler;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
@@ -154,15 +155,7 @@ public class GameEngine {
      	ruleTitle.setFont(new Font("Futura", 20));
      	ruleTitle.setStyle("-fx-text-fill: #FFFFFF; "
      			+ "-fx-underline: true");
-     	VBox ruleBox = new VBox(10, ruleTitle);
-     	ruleBox.setAlignment(Pos.CENTER);
-     	ruleBox.setMaxWidth(500);
-     	ruleBox.setStyle("-fx-text-fill: #FFFFFF; "
-     			+ "-fx-border-style: solid inside; "
-     			+ "-fx-border-width: 2; "
-     			+ "-fx-border-radius: 5; "
-     			+ "-fx-border-color: #FFA500; "
-     			+ "-fx-background-color: #696969");
+     	VBox ruleBox = generateRuleBox(ruleTitle);
      	// create one top level grid to organize the things in the scene
      	VBox menuRoot = new VBox(20, gameTitle, ruleBox, playButton);
      	menuRoot.setAlignment(Pos.CENTER);
@@ -170,6 +163,37 @@ public class GameEngine {
      	// create the scene to display objects
      	Scene startMenu = new Scene(menuRoot, WIDTH, HEIGHT);
      	return startMenu;
+    }
+    
+    /**
+     * Generates the vertical box containing the rules to the game
+     * 
+     * @param ruleTitle: the underlined title for the vertical box
+     * @return ruleBox: the vertical box containing the rules
+     */
+    private VBox generateRuleBox(Label ruleTitle) {
+		VBox ruleBox = new VBox(10, ruleTitle);
+		ruleBox.setAlignment(Pos.CENTER);
+     	ruleBox.setMaxWidth(500);
+     	ruleBox.setStyle("-fx-text-fill: #FFFFFF; "
+     			+ "-fx-border-style: solid inside; "
+     			+ "-fx-border-width: 2; "
+     			+ "-fx-border-radius: 5; "
+     			+ "-fx-border-color: #FFA500; "
+     			+ "-fx-background-color: #696969");
+     	Label controls = new Label();
+     	controls.setFont(new Font("Futura", 14));
+     	controls.setText("1. Use the 'LEFT' and 'RIGHT' arrow keys to move the paddle\n" + 
+     			"2. Press 'SPACE' to launch any available Balls\n" + 
+     			"3. Press 'F' to use an ability coin and catch the next ball to touch the paddle\n" +
+     			"4. Press 'G' to use an ability coin and stretch the paddle "
+     				+ "for a short period\n" + 
+     			"5. Press 'E' to use an ability coin and give the paddle a short speed boost\n");
+     	controls.setStyle("-fx-text-fill: #FFFFFF");
+     	controls.setAlignment(Pos.CENTER);
+     	ruleBox.getChildren().add(controls);
+    	return ruleBox;
+    	
     }
     
     /**
@@ -334,14 +358,118 @@ public class GameEngine {
      * Generates the end of the level screen
      */
     private void endLevel() {
-    	// win
-    	if (SPRITES.numBlocks() == 0) {
-    		
-    	}
-    	// lose
-    	else {
-    		
-    	}
+    	// make sure the stage is clear of all scenes
+    	GAME_STAGE.setScene(new Scene(new Pane()));
+        // create and style the button box
+        Button replayButton = new Button("Replay Level");
+        replayButton.setStyle("-fx-background-color: #FFA500; "
+        		+ "-fx-font-size: 28 futura; "
+        		+ "-fx-text-fill: #FFFFFF");
+        replayButton.setOnMouseEntered(new EventHandler<MouseEvent>() {
+			@Override
+			public void handle(MouseEvent arg0) {
+				replayButton.setEffect(new Glow());	
+				//System.out.println("Hello");
+			}
+        });
+        replayButton.setOnMouseExited(new EventHandler<MouseEvent>() {
+			@Override
+			public void handle(MouseEvent arg0) {
+				replayButton.setEffect(null);
+			}
+        });
+        replayButton.setOnMouseClicked(new EventHandler<MouseEvent>() {
+			@Override
+			public void handle(MouseEvent arg0) {
+				generateLevel();
+			}
+        });
+        Button exitButton = new Button("Quit Game");
+        exitButton.setStyle("-fx-background-color: #FFA500; "
+        		+ "-fx-font-size: 28 futura; "
+        		+ "-fx-text-fill: #FFFFFF");
+        exitButton.setOnMouseEntered(new EventHandler<MouseEvent>() {
+			@Override
+			public void handle(MouseEvent arg0) {
+				exitButton.setEffect(new Glow());	
+				//System.out.println("Hello");
+			}
+        });
+        exitButton.setOnMouseExited(new EventHandler<MouseEvent>() {
+			@Override
+			public void handle(MouseEvent arg0) {
+				exitButton.setEffect(null);
+			}
+        });
+        exitButton.setOnMouseClicked(new EventHandler<MouseEvent>() {
+			@Override
+			public void handle(MouseEvent arg0) {
+				Platform.exit();
+				System.out.println("Test");
+			}
+        });
+        // create and style the next level box
+        Button nextButton = new Button("Next Level");
+        nextButton.setStyle("-fx-background-color: #FFA500; "
+        		+ "-fx-font-size: 28 futura; "
+          		+ "-fx-text-fill: #FFFFFF");
+        nextButton.setOnMouseEntered(new EventHandler<MouseEvent>() {
+    		@Override
+    		public void handle(MouseEvent arg0) {
+    			nextButton.setEffect(new Glow());	
+    		}
+        });
+        nextButton.setOnMouseExited(new EventHandler<MouseEvent>() {
+			@Override
+			public void handle(MouseEvent arg0) {
+				nextButton.setEffect(null);
+			}
+        });
+        nextButton.setOnMouseClicked(new EventHandler<MouseEvent>() {
+			@Override
+			public void handle(MouseEvent event) {
+				LEVEL++;
+				generateLevel();
+			}
+        });
+        // generate the complete start Menu
+     	Scene nextMenu = generateNextMenu(replayButton, exitButton, nextButton);
+     	GAME_STAGE.setScene(nextMenu);
+    }
+    
+    /**
+     * Generate the menu screen to display the next level options
+     * 
+     * @param replayButton: button to replay the current level
+     * @param exitButton: button to exit the game
+     * @param nextButton: button to advance to the next level
+     * @return Scene nextMenu: the complete next menu displayed to the user
+     */
+    private Scene generateNextMenu(Button replayButton, Button exitButton, Button nextButton) {
+    	// create and style the title 
+        Label endTitle = new Label("Lost Level " + LEVEL);
+        endTitle.setFont(new Font("Futura", 45));
+        endTitle.setEffect(new Glow());
+        endTitle.setStyle("-fx-text-fill: #FFFFFF");
+        HBox buttonBox = new HBox(40, replayButton, exitButton);
+        buttonBox.setPickOnBounds(false);
+        // win
+        if (SPRITES.numBlocks() == 0) {
+        	buttonBox.getChildren().add(nextButton);
+        	endTitle.setText("Completed Level " + LEVEL);
+        }
+     	buttonBox.setAlignment(Pos.CENTER);
+     	buttonBox.setMaxWidth(WIDTH);
+     	buttonBox.setStyle("-fx-text-fill: #FFFFFF; "
+     			+ "-fx-background-color: #696969");
+     	// create one top level grid to organize the things in the scene
+     	VBox nextRoot = new VBox(40, endTitle, buttonBox);
+     	nextRoot.setAlignment(Pos.CENTER);
+     	nextRoot.setStyle("-fx-background-color: #696969");
+     	nextRoot.setPickOnBounds(false);
+     	// create the scene to display objects
+     	Scene nextMenu = new Scene(nextRoot, WIDTH, HEIGHT);
+     	return nextMenu;
     }
     
     /**
@@ -350,8 +478,8 @@ public class GameEngine {
 	 * @param elapsedTime: time since last animation update
 	 */
     private void step (double elapsedTime) {
-    	if (SPRITES.numBlocks() == 0 ||
-    			PLAYER.isDead()) {
+    	if ((SPRITES.numBlocks() == 0 ||
+    			PLAYER.isDead()) && PLAYING) {
     		endLevel();
     	}
     	// handle input
@@ -399,6 +527,7 @@ public class GameEngine {
     		LIVES_LABEL.setText("Lives remaining: " + String.valueOf(PLAYER.getLives()));
     		BALLS_LABEL.setText("Balls availible: " + String.valueOf(PLAYER.getBalls()));
     		ABILITY_LABEL.setText("Ability coins: " + String.valueOf(PLAYER.getAbilityCoins()));
+    		PLAYER.updateDead();
     		//System.out.println("Handled stats update");
     	}
     }
@@ -450,6 +579,9 @@ public class GameEngine {
         	PLAYER = new Player();
         	LEVEL = 5;
         	generateLevel();
+        }
+        if (code == KeyCode.C) {
+        	
         }
         processKey();
     }
