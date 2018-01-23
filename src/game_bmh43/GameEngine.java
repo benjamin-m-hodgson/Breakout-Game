@@ -48,6 +48,7 @@ public class GameEngine {
     private boolean SPACE_KEY = false;
     private boolean LEFT_KEY = false;
     private boolean RIGHT_KEY = false;
+    private boolean LEVEL_KEY = false;
     private Stage GAME_STAGE;
     
     private ObjectManager SPRITES = new ObjectManager();
@@ -135,7 +136,7 @@ public class GameEngine {
 	 * Ends the game
 	 */
 	public void endGame() {
-		System.out.printf("Game over!");
+		//System.out.printf("Game over!");
 	}
     
     /**
@@ -429,7 +430,12 @@ public class GameEngine {
 			@Override
 			public void handle(MouseEvent event) {
 				LEVEL++;
-				generateLevel();
+				if (LEVEL > 5) {
+					endGame();
+				}
+				else {
+					generateLevel();
+				}
 			}
         });
         // generate the complete start Menu
@@ -580,8 +586,26 @@ public class GameEngine {
         	LEVEL = 5;
         	generateLevel();
         }
-        if (code == KeyCode.C) {
-        	
+        // catch and throw
+        if (code == KeyCode.F && 
+        		!SPRITES.getPaddle().getActivated() &&
+        		PLAYER.getAbilityCoins() > 0) {
+        	SPRITES.getPaddle().setCatch();
+        	PLAYER.loseAbility();
+        }
+        // stretch
+        if (code == KeyCode.G && 
+        		!SPRITES.getPaddle().getActivated() &&
+        		PLAYER.getAbilityCoins() > 0) {
+        	SPRITES.getPaddle().setStretch();
+        	PLAYER.loseAbility();
+        }
+        // boost
+        if (code == KeyCode.E && 
+        		!SPRITES.getPaddle().getActivated() &&
+        		PLAYER.getAbilityCoins() > 0) {
+        	SPRITES.getPaddle().setBoost();
+        	PLAYER.loseAbility();
         }
         processKey();
     }
@@ -699,7 +723,14 @@ public class GameEngine {
     private void checkSprites(Ball gameBall) {
     	// reset the ball miss counter
     	Shape paddleHit = Shape.intersect(gameBall.getBall(), SPRITES.getPaddle().getShape());
-    	if (paddleHit.getBoundsInLocal().getWidth() != -1) {
+    	if (paddleHit.getBoundsInLocal().getWidth() != -1 && SPRITES.getPaddle().canCatch()) {
+    		REMOVE_LIST.add(gameBall);
+    		Pane levelPane = (Pane) GAME_STAGE.getScene().getRoot();
+    		levelPane.getChildren().remove(gameBall);
+    		PLAYER.addBall();
+    		SPRITES.getPaddle().hasBall();
+    	}
+    	else if(paddleHit.getBoundsInLocal().getWidth() != -1) {
             gameBall.handleCollision(SPRITES.getPaddle(), SECOND_DELAY);
         }
     	// check if the ball collides with any game objects

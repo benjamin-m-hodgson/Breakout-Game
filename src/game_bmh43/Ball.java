@@ -209,6 +209,7 @@ public class Ball {
     }
     
     /**
+     * Updates the Ball animation
      * 
      * @param elapsedTime: time since last frame
      */
