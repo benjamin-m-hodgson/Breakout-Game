@@ -21,6 +21,7 @@ public class Block {
     private String TYPE;
     private boolean DEAD;
     private int HITS;
+    private int POINTS;
 	
 	public Block(int x, int y, String type) {
 		BLOCK = new Rectangle(x, y,
@@ -42,6 +43,7 @@ public class Block {
 			BLOCK.setFill(BLOCK_THREE);
 		}
 		TYPE = type;
+		POINTS = 10 * HITS;
 	}
 	
 	/**
@@ -58,6 +60,14 @@ public class Block {
 	 */
 	public Shape getBlock() {
 		return BLOCK;
+	}
+	
+	/**
+	 * 
+	 * @return The number of Points this block is worth
+	 */
+	public int getPoints() {
+		return POINTS;
 	}
 	
 	/**

@@ -58,6 +58,7 @@ public class GameEngine {
     
     private Label LEVEL_LABEL;
     private Label LIVES_LABEL;
+    private Label SCORE_LABEL;
     private Label BALLS_LABEL;
     private Label ABILITY_LABEL;
     private VBox LEVEL_HEADER;
@@ -137,6 +138,19 @@ public class GameEngine {
 	 */
 	public void endGame() {
 		//System.out.printf("Game over!");
+		// create and style the title 
+     	Label endTitle = new Label("You won!\n Score: " + PLAYER.getScore());
+     	endTitle.setFont(new Font("Futura", 45));
+     	endTitle.setEffect(new Glow());
+     	endTitle.setStyle("-fx-text-fill: #FFFFFF");
+     // create one top level grid to organize the things in the scene
+     	VBox endRoot = new VBox(20, endTitle);
+     	endRoot.setAlignment(Pos.CENTER);
+     	endRoot.setStyle("-fx-background-color: #696969");
+     	// create the scene to display objects
+     	Scene endMenu = new Scene(endRoot, WIDTH, HEIGHT);
+     	GAME_STAGE.setScene(endMenu);
+		
 	}
     
     /**
@@ -285,12 +299,15 @@ public class GameEngine {
     	LEVEL_LABEL = generateStatsLabel("Level: ");
     	// display lives
     	LIVES_LABEL = generateStatsLabel("Lives remaining: ");
+    	// display score
+    	SCORE_LABEL = generateStatsLabel("Score: ");
      	// display balls
     	BALLS_LABEL = generateStatsLabel("Balls available: ");
      	// display ability coins
      	ABILITY_LABEL = generateStatsLabel("Ability points: ");
      	// combine the labels
-     	HBox statsBar = new HBox(WIDTH/6, LEVEL_LABEL, LIVES_LABEL, BALLS_LABEL, ABILITY_LABEL);
+     	HBox statsBar = new HBox(WIDTH/8, LEVEL_LABEL, LIVES_LABEL, 
+     			SCORE_LABEL, BALLS_LABEL, ABILITY_LABEL);
     	statsBar.setMaxSize(WIDTH, 20);
     	statsBar.setMinSize(WIDTH, 20);
     	statsBar.setStyle("-fx-text-fill: #FFFFFF; "
@@ -362,7 +379,7 @@ public class GameEngine {
     	// make sure the stage is clear of all scenes
     	GAME_STAGE.setScene(new Scene(new Pane()));
         // create and style the button box
-        Button replayButton = new Button("Replay Level");
+        Button replayButton = new Button("R: Replay Level");
         replayButton.setStyle("-fx-background-color: #FFA500; "
         		+ "-fx-font-size: 28 futura; "
         		+ "-fx-text-fill: #FFFFFF");
@@ -385,7 +402,7 @@ public class GameEngine {
 				generateLevel();
 			}
         });
-        Button exitButton = new Button("Quit Game");
+        Button exitButton = new Button("Q: Quit Game");
         exitButton.setStyle("-fx-background-color: #FFA500; "
         		+ "-fx-font-size: 28 futura; "
         		+ "-fx-text-fill: #FFFFFF");
@@ -410,7 +427,7 @@ public class GameEngine {
 			}
         });
         // create and style the next level box
-        Button nextButton = new Button("Next Level");
+        Button nextButton = new Button("N: Next Level");
         nextButton.setStyle("-fx-background-color: #FFA500; "
         		+ "-fx-font-size: 28 futura; "
           		+ "-fx-text-fill: #FFFFFF");
@@ -440,7 +457,10 @@ public class GameEngine {
         });
         // generate the complete start Menu
      	Scene nextMenu = generateNextMenu(replayButton, exitButton, nextButton);
+     	nextMenu.setOnKeyPressed(e -> handleKeyPress(e.getCode()));
      	GAME_STAGE.setScene(nextMenu);
+     	// can use next keys for level generation
+     	LEVEL_KEY = true;
     }
     
     /**
@@ -531,6 +551,7 @@ public class GameEngine {
     	if (PLAYING) {
     		LEVEL_LABEL.setText("Level: " + String.valueOf(LEVEL));
     		LIVES_LABEL.setText("Lives remaining: " + String.valueOf(PLAYER.getLives()));
+    		SCORE_LABEL.setText("Score: " + String.valueOf(PLAYER.getScore()));
     		BALLS_LABEL.setText("Balls availible: " + String.valueOf(PLAYER.getBalls()));
     		ABILITY_LABEL.setText("Ability coins: " + String.valueOf(PLAYER.getAbilityCoins()));
     		PLAYER.updateDead();
@@ -606,6 +627,24 @@ public class GameEngine {
         		PLAYER.getAbilityCoins() > 0) {
         	SPRITES.getPaddle().setBoost();
         	PLAYER.loseAbility();
+        }
+        if (code == KeyCode.R && LEVEL_KEY) {
+        	LEVEL_KEY = false;
+        	generateLevel();
+        }
+        if (code == KeyCode.Q && LEVEL_KEY) {
+        	LEVEL_KEY = false;
+        	Platform.exit();
+        }
+        if (code == KeyCode.N && LEVEL_KEY) {
+        	LEVEL_KEY = false;
+        	LEVEL++;
+        	if (LEVEL > 5) {
+        		endGame();
+        	}
+        	else {
+        		generateLevel();
+        	}
         }
         processKey();
     }
@@ -766,6 +805,8 @@ public class GameEngine {
 			if (intersect.getBoundsInLocal().getWidth() != -1) {
 	            gameBall.handleCollision(otherBlock, SECOND_DELAY);
 	            if (otherBlock.isDead()) {
+	            	int blockPoints = otherBlock.getPoints();
+	            	PLAYER.addScore(blockPoints);
 	            	// prepare to destroy block
     				REMOVE_LIST.add(otherBlock);
     				double xPos = otherBlock.getBlock().getBoundsInParent().getMinX() + 

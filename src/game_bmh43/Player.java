@@ -5,10 +5,12 @@ public class Player {
 	private int LIVES;
 	private int BALLS;
 	private int ABILITY_COINS;
+	private int SCORE;
 	private boolean DEAD;
 
 	public Player() {
 		ABILITY_COINS = 0;
+		SCORE = 0;
 		BALLS = 1;
 		LIVES = 2;
 		DEAD = false;
@@ -36,6 +38,23 @@ public class Player {
 	 */
 	public int getAbilityCoins() {
 		return ABILITY_COINS;
+	}
+	
+	/**
+	 * 
+	 * @return SCORE: the players score
+	 */
+	public int getScore() {
+		return SCORE;
+	}
+	
+	/**
+	 * Adds a number to the player's score
+	 * 
+	 * @param num: value to be added to score
+	 */
+	public void addScore(int num) {
+		SCORE = SCORE + num;
 	}
 	
 	/**
