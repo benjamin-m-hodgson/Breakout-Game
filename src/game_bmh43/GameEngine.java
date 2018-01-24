@@ -68,7 +68,6 @@ public class GameEngine {
 	
 	/**
 	 * 
-	 * @param fps: number of animation frames per second
 	 * @param title: the title of the game
 	 */
 	public GameEngine(String title) {
@@ -166,7 +165,7 @@ public class GameEngine {
      	gameTitle.setEffect(new Glow());
      	gameTitle.setStyle("-fx-text-fill: #FFFFFF");
      	// create and style the rule box
-     	Label ruleTitle = new Label("Rules");
+     	Label ruleTitle = new Label("Controls");
      	ruleTitle.setFont(new Font("Futura", 20));
      	ruleTitle.setStyle("-fx-text-fill: #FFFFFF; "
      			+ "-fx-underline: true");
@@ -218,18 +217,18 @@ public class GameEngine {
      * @param levelNum: the number of the level to be generated
      */
     private void generateLevel() {
+    	// clear the ObjectManager and instance variables
+    	SPRITES.resetBalls();
+    	SPRITES.resetBlocks();
+    	SPRITES.resetSprites();
+    	PLAYING = false;
+    	LEVEL_GENERATED = false;
     	// make sure the stage is clear of all scenes
     	GAME_STAGE.setScene(new Scene(new Pane()));
     	SceneGenerator level = new SceneGenerator(LEVEL);
     	Scene levelScene = level.getScene();
     	Pane levelPane = level.getPane();
     	ArrayList<Block> blockList = level.getBlockList();
-    	// clear the ObjectManager
-    	SPRITES.resetBalls();
-    	SPRITES.resetBlocks();
-    	SPRITES.resetSprites();
-    	PLAYING = false;
-    	LEVEL_GENERATED = false;
     	BALL_SPEED = 100 + LEVEL * 10;
     	// add the new blocks into the ObjectManager
     	for (Block nodeBlock : blockList) {
@@ -306,7 +305,7 @@ public class GameEngine {
      	// display ability coins
      	ABILITY_LABEL = generateStatsLabel("Ability points: ");
      	// combine the labels
-     	HBox statsBar = new HBox(WIDTH/8, LEVEL_LABEL, LIVES_LABEL, 
+     	HBox statsBar = new HBox(WIDTH/9, LEVEL_LABEL, LIVES_LABEL, 
      			SCORE_LABEL, BALLS_LABEL, ABILITY_LABEL);
     	statsBar.setMaxSize(WIDTH, 20);
     	statsBar.setMinSize(WIDTH, 20);
@@ -458,6 +457,7 @@ public class GameEngine {
         // generate the complete start Menu
      	Scene nextMenu = generateNextMenu(replayButton, exitButton, nextButton);
      	nextMenu.setOnKeyPressed(e -> handleKeyPress(e.getCode()));
+     	nextMenu.setOnKeyReleased(e -> handleKeyRelease(e.getCode()));
      	GAME_STAGE.setScene(nextMenu);
      	// can use next keys for level generation
      	LEVEL_KEY = true;
@@ -471,7 +471,8 @@ public class GameEngine {
      * @param nextButton: button to advance to the next level
      * @return Scene nextMenu: the complete next menu displayed to the user
      */
-    private Scene generateNextMenu(Button replayButton, Button exitButton, Button nextButton) {
+    private Scene generateNextMenu(Button replayButton, Button exitButton, 
+    		Button nextButton) {
     	// create and style the title 
         Label endTitle = new Label("Lost Level " + LEVEL);
         endTitle.setFont(new Font("Futura", 45));
@@ -814,7 +815,6 @@ public class GameEngine {
     				double yPos = otherBlock.getBlock().getBoundsInParent().getMinY() + 
     						otherBlock.getBlock().getBoundsInParent().getHeight() / 2;
     				generatePowerUp(xPos, yPos);
-    				
 	            }
 			}
 		}
